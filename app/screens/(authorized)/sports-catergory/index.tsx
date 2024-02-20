@@ -16,6 +16,7 @@ import EQBottomNavigationBar, {
 import AuthorizedLayout from "../../../components/layouts/authorized-layout";
 import PageTitle from "../../../components/page-title/page-title";
 import { Searchbar } from "react-native-paper";
+import SingleSport from "../../../components/single-sport/single-sport";
 
 export default function SportsCatergory({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
@@ -64,66 +65,18 @@ export default function SportsCatergory({ navigation }) {
       <Text style={styles.heading}> Sports Catergory</Text>
 
       <View style={styles.sportsContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("GamesList")}>
-          <View style={styles.sportCatergory}>
-          <Image
-            style={styles.SportLogo}
-            source={require("../../../assets/images/cricket-Icon.png")}
-          />
-          </View>
-          <Text style={styles.sportsText}>Cricket</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("GamesList")}>
-          <View style={styles.sportCatergory}>
-          <Image
-            style={styles.SportLogo}
-            source={require("../../../assets/images/football-Icon.png")}
-          />
-          </View>
-          <Text style={styles.sportsText}>Football</Text>
-        </TouchableOpacity>
+          <SingleSport sportName="Cricket" sportImage={require("../../../assets/images/cricket-Icon.png")} />
+          <SingleSport sportName="Football" sportImage={require("../../../assets/images/football-Icon.png")} />
       </View>
 
       <View style={styles.sportsContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("GamesList")}>
-          <View style={styles.sportCatergory}>
-          <Image
-            style={styles.SportLogo}
-            source={require("../../../assets/images/rugby-Icon.png")}
-          />
-          </View>
-          <Text style={styles.sportsText}>Rugby</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("GamesList")}>
-          <View style={styles.sportCatergory}>
-          <Image
-            style={styles.SportLogo}
-            source={require("../../../assets/images/tennis-Icon.png")}
-          />
-          </View>
-          <Text style={styles.sportsText}>Tennis</Text>
-        </TouchableOpacity>
+        <SingleSport sportName="Rugby" sportImage={require("../../../assets/images/rugby-Icon.png")} />
+        <SingleSport sportName="Tennis" sportImage={require("../../../assets/images/tennis-Icon.png")} />
       </View>
 
       <View style={styles.sportsContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("GamesList")}>
-          <View style={styles.sportCatergory}>
-          <Image
-            style={styles.SportLogo}
-            source={require("../../../assets/images/hockey-Icon.png")}
-          />
-          </View>
-          <Text style={styles.sportsText}>Hockey</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("GamesList")}>
-          <View style={styles.sportCatergory}>
-          <Image
-            style={styles.SportLogo}
-            source={require("../../../assets/images/basketball-Icon.png")}
-          />
-          </View>
-          <Text style={styles.sportsText}>Basketball</Text>
-        </TouchableOpacity>
+        <SingleSport sportName="Basketball" sportImage={require("../../../assets/images/basketball-Icon.png")} />
+        <SingleSport sportName="Hockey" sportImage={require("../../../assets/images/hockey-Icon.png")} />
       </View>
 
       <EQBottomNavigationBar
