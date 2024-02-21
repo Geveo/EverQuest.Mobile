@@ -30,6 +30,7 @@ let AppTheme = {
     lineGreen: "#B6EDC5",
     emailGreen: "rgba(18, 183, 106, 0.7)",
     descriptionTextSmall: "#535559",
+    greySubText: "#475467",
   },
   spacings: {
     lineSpace: 10, // example

@@ -13,16 +13,13 @@ export default function SingleSport({ sportName, sportImage }) {
 
   return (
     <View>
-      <TouchableOpacity>
           <View style={styles.sportCatergory}>
           <Image
             style={styles.SportLogo}
-            //source={require("../../../assets/images/cricket-Icon.png")}
             source={sportImage}
           />
           </View>
           <Text style={styles.sportsText}> {sportName} </Text>
-        </TouchableOpacity>
     </View>
   );
 
