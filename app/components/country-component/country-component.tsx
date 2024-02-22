@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import AppTheme from "../../helpers/theme";
 
-export default function CountryComponent({ countryName }) {
+export default function CountryComponent({ countryName, countryImage }) {
 
     const [active, setActive] = useState(false);
 
@@ -20,14 +20,14 @@ export default function CountryComponent({ countryName }) {
     <Image
           resizeMethod="resize"
           resizeMode="contain"
-          source={require(".../../../assets/images/IN.png")}
+          source={countryImage}
           onError={(e) => {
             console.log("Image failed to load");
           }}
         />
     </View>
-    <View >
-        <Text>{countryName}</Text>
+    <View>
+        <Text style={styles.countryName}>{countryName}</Text>
     </View>
     </View>
     
@@ -41,11 +41,11 @@ export default function CountryComponent({ countryName }) {
 
 const styles = StyleSheet.create({
     mainContainer: {
-        marginTop: 20,
+        marginVertical: 5,
         width: 350,
         height: 50,
         backgroundColor: AppTheme.colors.white,
-        elevation: 5,
+        elevation: 3,
         alignItems: "center",
         alignSelf: "center",
         flexDirection: "row",
@@ -66,6 +66,8 @@ const styles = StyleSheet.create({
     },
     countryName:{
         color: AppTheme.colors.black,
+        fontSize: 16,
+        fontWeight: "bold",
     },
     radioButton:{
         width: 15,
