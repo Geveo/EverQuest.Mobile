@@ -10,6 +10,7 @@ import GamesList from "./screens/(authorized)/games-list";
 import Tournament from "./screens/(authorized)/tournament";
 import Challenge from "./screens/(authorized)/challenge";
 import RoundDetails from "./screens/(authorized)/round-details";
+import Login from "./screens/(anonymous)/login";
 
 const Stack = createStackNavigator();
 
@@ -78,6 +79,12 @@ export default function App() {
           name="RoundDetails"
           component={RoundDetails}
           options={{ title: "RoundDetails" }}
+        />
+
+        <Stack.Screen
+          name="LoginScreen"
+          component={Login}
+          options={{ title: "LoginScreen" }}
         />
         
       </Stack.Navigator>

@@ -25,7 +25,7 @@ export default function LandingScreen({ navigation }) {
     //          navigation.navigate("SignInScreen");
     //        }
     //     });
-    navigation.navigate("HomeScreen");
+    navigation.navigate("LoginScreen");
   }
 
 

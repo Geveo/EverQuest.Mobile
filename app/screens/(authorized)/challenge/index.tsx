@@ -6,7 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ScrollView
+  ScrollView,
 } from "react-native";
 import EQBottomNavigationBar, {
   BottomNavigationButtons,
@@ -23,6 +23,11 @@ export default function Challenge({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [activeTab, setActiveTab] = useState("Teams");
   const [RoundNumber, setRoundNumber] = useState(1);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+
+  const handleRadioButtonPress = (countryName) => {
+    setSelectedCountry(countryName);
+  };
 
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
@@ -95,69 +100,83 @@ export default function Challenge({ navigation }) {
             </Text>
           </TouchableOpacity>
         </View>
-        </View>
-        {activeTab === "Teams" ? (
-          <ScrollView style={styles.tabContent1}>
-            <CountryComponent
-              countryName={"Sri Lanka"}
-              countryImage={require("../../../assets/images/LK.png")}
-            />
-            <Text style={styles.vsTExt}> vs </Text>
-            <CountryComponent
-              countryName={"England"}
-              countryImage={require("../../../assets/images/GB.png")}
-            />
-            <View style={styles.horizontalDivider} />
-            <CountryComponent
-              countryName={"Australia"}
-              countryImage={require("../../../assets/images/AUS.png")}
-            />
-            <Text style={styles.vsTExt}> vs </Text>
-            <CountryComponent
-              countryName={"South Africa"}
-              countryImage={require("../../../assets/images/ZA.png")}
-            />
-            <View style={styles.horizontalDivider} />
-            <CountryComponent
-              countryName={"India"}
-              countryImage={require("../../../assets/images/IN.png")}
-            />
-            <Text style={styles.vsTExt}> vs </Text>
-            <CountryComponent
-              countryName={"Afghanistan"}
-              countryImage={require("../../../assets/images/AFG.png")}
-            />
-            <View style={styles.horizontalDivider} />
-            <CountryComponent
-              countryName={"Pakistan"}
-              countryImage={require("../../../assets/images/PK.png")}
-            />
-            <Text style={styles.vsTExt}> vs </Text>
-            <CountryComponent
-              countryName={"New Zealand"}
-              countryImage={require("../../../assets/images/NZ.png")}
-            />
-            <View style={styles.horizontalDivider} />
-          </ScrollView>
-        ) : (
-          <View style={styles.resultContainer}>
-            <Text style={styles.resultGreet}>Congratulations !!!</Text>
-            <Text style={styles.textResult}>You have won Round {RoundNumber}</Text>
+      </View>
+      {activeTab === "Teams" ? (
+        <ScrollView style={styles.tabContent1}>
+          <CountryComponent
+            countryName={"Sri Lanka"}
+            countryImage={require("../../../assets/images/LK.png")}
+            isActive={selectedCountry === "Sri Lanka"}
+            onPress={handleRadioButtonPress}
+          />
+          <Text style={styles.vsTExt}> vs </Text>
+          <CountryComponent
+            countryName={"England"}
+            countryImage={require("../../../assets/images/GB.png")}
+            isActive={selectedCountry === "England"}
+            onPress={handleRadioButtonPress}
+          />
+          <View style={styles.horizontalDivider} />
+          <CountryComponent
+            countryName={"Australia"}
+            countryImage={require("../../../assets/images/AUS.png")}
+            isActive={selectedCountry === "Australia"}
+            onPress={handleRadioButtonPress}
+          />
+          <Text style={styles.vsTExt}> vs </Text>
+          <CountryComponent
+            countryName={"South Africa"}
+            countryImage={require("../../../assets/images/ZA.png")}
+            isActive={selectedCountry === "South Africa"}
+            onPress={handleRadioButtonPress}
+          />
+          <View style={styles.horizontalDivider} />
+          <CountryComponent
+            countryName={"India"}
+            countryImage={require("../../../assets/images/IN.png")}
+            isActive={selectedCountry === "India"}
+            onPress={handleRadioButtonPress}
+          />
+          <Text style={styles.vsTExt}> vs </Text>
+          <CountryComponent
+            countryName={"Afghanistan"}
+            countryImage={require("../../../assets/images/AFG.png")}
+            isActive={selectedCountry === "Afghanistan"}
+            onPress={handleRadioButtonPress}
+          />
+          <View style={styles.horizontalDivider} />
+          <CountryComponent
+            countryName={"Pakistan"}
+            countryImage={require("../../../assets/images/PK.png")}
+            isActive={selectedCountry === "Pakistan"}
+            onPress={handleRadioButtonPress}
+          />
+          <Text style={styles.vsTExt}> vs </Text>
+          <CountryComponent
+            countryName={"New Zealand"}
+            countryImage={require("../../../assets/images/NZ.png")}
+            isActive={selectedCountry === "New Zealand"}
+            onPress={handleRadioButtonPress}
+          />
+          <View style={styles.horizontalDivider} />
+        </ScrollView>
+      ) : (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultGreet}>Congratulations !!!</Text>
+          <Text style={styles.textResult}>
+            You have won Round {RoundNumber}
+          </Text>
 
-            <SCButtonWithoutArrow
-              text= "Round 2"
-            />
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("RoundDetails");
-              }}
-            >
+          <SCButtonWithoutArrow text="Round 2" />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("RoundDetails");
+            }}
+          >
             <Text style={styles.detailsText}> Round Details </Text>
-            </TouchableOpacity>
-            
-          </View>
-        )}
-      
+          </TouchableOpacity>
+        </View>
+      )}
 
       <EQBottomNavigationBar
         navigation={navigation}

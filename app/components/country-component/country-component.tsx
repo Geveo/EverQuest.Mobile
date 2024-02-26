@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import AppTheme from "../../helpers/theme";
 
-export default function CountryComponent({ countryName, countryImage }) {
+export default function CountryComponent({ countryName, countryImage, isActive, onPress }) {
 
     const [active, setActive] = useState(false);
 
@@ -32,8 +32,8 @@ export default function CountryComponent({ countryName, countryImage }) {
     </View>
     
     <TouchableOpacity 
-    style={[styles.radioButton, active && styles.radioButtonActive]}
-    onPress={() => setActive(!active)}
+      style={[styles.radioButton, isActive && styles.radioButtonActive]}
+      onPress={() => onPress(countryName)}
     />
   </View>
   );

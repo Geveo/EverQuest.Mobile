@@ -19,6 +19,7 @@ import { Searchbar } from "react-native-paper";
 import SingleSport from "../../../components/single-sport/single-sport";
 import { ScrollView } from "react-native-gesture-handler";
 
+
 export default function SportsCatergory({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [searchQuery, setSearchQuery] = React.useState(""); // search bar

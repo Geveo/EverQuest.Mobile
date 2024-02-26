@@ -35,9 +35,5 @@ const styles = StyleSheet.create({
   screenBackground: {
     width: "100%",
     height: "100%",
-    paddingTop:0,
-    paddingRight:15,
-    paddingBottom:20,
-    paddingLeft:15
   },
 });
