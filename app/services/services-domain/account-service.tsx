@@ -20,7 +20,6 @@ export default class AccountService {
         };
 
         var hasAccount = await this.submitToContract(messageObj);
-        console.log("Rsponse", hasAccount);
         return hasAccount;
     }
 
@@ -30,7 +29,7 @@ export default class AccountService {
     async submitToContract(messageObj) {
         try {
             console.log("AllRequests", messageObj);
-            var response = await HotPocketClientService.submitInputToContract(messageObj);
+            var response = await HotPocketClientService.submitContractReadRequest(messageObj);
             console.log("AllResponse", response);
             return response;
         } catch (error) {

@@ -17,6 +17,7 @@ import AppTheme from "../../../helpers/theme";
 import PageTitle from "../../../components/page-title/page-title";
 import GameItem from "../../../components/game-item/game-item";
 import { ScrollView } from "react-native-gesture-handler";
+import axios from "axios";
 
 export default function GamesList({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
@@ -24,6 +25,21 @@ export default function GamesList({ navigation }) {
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
+  }
+
+  useEffect(() => {
+    getAllGames();
+  }, []);
+
+  async function getAllGames() {
+    try {
+      console.log(" Before requst: ");
+      const response = await axios.get("http://192.168.8.101:7189/api/games/getAllSportsLeagesAndGames");
+      
+      console.log("Response: ", JSON.stringify(response));
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    }
   }
 
   useEffect(() => {

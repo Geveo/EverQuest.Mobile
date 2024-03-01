@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  TouchableOpacity,
   Text,
   View,
   StyleSheet,
   Dimensions,
   TextInput,
 } from "react-native";
-import SCButton from "../../../components/button/button";
 import AppTheme from "../../../helpers/theme";
 import SCButtonWithoutArrow from "../../../components/button-without-arrow/button-without-arrow";
 import AnonymousLayout from "../../../components/layouts/anonymous-layout";
@@ -21,13 +19,8 @@ const screenWidth = Dimensions.get("window").width;
 
 export default function Login({ title, navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
-  const handleBackPress = () => {
-    navigation.goBack();
-  };
-
   const UrlConstants = {
     XRPL_URL: "wss://xahau-test.net/",
-    CONTRACT_URLS: ["wss://dapps-dev.geveo.com:26313"]
   };
   const xrplClient = new xrpl.Client(UrlConstants.XRPL_URL);
   if (!AccountService.instance) {
@@ -37,9 +30,8 @@ export default function Login({ title, navigation }) {
   const [seed, setSeed] = useState('');
   const [error, setError] = useState('');
   const toast = useRef(null);
-  const showError = (error_message) => {
-    //toast.current && toast.current.show(error_message, { duration: Toast.durations.LONG });
-    setError('Error');
+  const showError = () => {
+    toast.current && toast.current.show(error, { duration: Toast.durations.LONG });
   }
   useEffect(() => {
     async function connect() {
@@ -56,36 +48,33 @@ export default function Login({ title, navigation }) {
         const wallet = Wallet.fromSeed(seed);
         if (wallet) {
           console.log("wallet", wallet);
-          const credentialsObject = {
-            privateKey: wallet.privateKey,
-            publicKey: wallet.publicKey,
-            address: wallet.address,
-            seed: seed
-          };
+
           const msgObj = {
             public_Key: wallet.publicKey,
             XRP_Address: wallet.address
           };
+          console.log("Message Obj: ", msgObj)
           var hasAccount = await _accountService.hasAccount(msgObj);
 
           console.log("hasAccount", hasAccount);
+          navigation.navigate("HomeScreen")
           if (hasAccount) {
             navigation.navigate("HomeScreen")
           } else {
             setError("Invalid Login.");
             console.log("Error", error);
-            showError(error)
+            showError()
           }
         }
         else {
           console.log("Error", wallet);
-          setError("Invalid Login.");
-          showError("Invalid Login.");
+          setError("Wallet does not exists");
+          showError();
         }
       } catch (error) {
         console.log("Error", error);
         setError("Invalid Login.");
-        showError("Invalid Login.");
+        showError();
       }
     } else {
       setError("Please provide a key.");
