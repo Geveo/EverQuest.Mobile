@@ -18,25 +18,42 @@ import PageTitle from "../../../components/page-title/page-title";
 import GameItem from "../../../components/game-item/game-item";
 import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios";
+import { useRoute, RouteProp  } from '@react-navigation/native';
+
 
 export default function GamesList({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [games, setGames] = useState([]);
+  const route = useRoute() as RouteProp<any, any>
+  const { sportName } = route.params;
+
 
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
   }
 
+  interface RouteParams {
+    sportId: number; // Assuming sportId is a number
+    // Add other parameters here if needed
+  }
+
   useEffect(() => {
-    getAllGames();
+    const { sportId } = route.params; // Accessing the sportId parameter
+    getAllGames(sportId);
   }, []);
 
-  async function getAllGames() {
+  async function getAllGames(sportId) {
     try {
-      console.log(" Before requst: ");
-      const response = await axios.get("http://192.168.8.101:7189/api/games/getAllSportsLeagesAndGames");
-      
-      console.log("Response: ", JSON.stringify(response));
+      //console.log(" Before request: ");
+      const response = await axios.get(`http://192.168.1.15:7189/api/games/getLeaguesBySportID?sportID=${sportId}`);
+      //console.log("Response: ", response.data);
+      const sortedGames = response.data.Leagues.map(game => ({
+        ...game,
+        StartDate: game.StartDate.substring(0, 10),
+        EndDate: game.EndDate.substring(0, 10),
+      })).sort((a: any, b: any) => new Date(b.EndDate).getTime() - new Date(a.EndDate).getTime());
+      setGames(sortedGames);
     } catch (error) {
       console.error("Error fetching games:", error);
     }
@@ -63,88 +80,20 @@ export default function GamesList({ navigation }) {
 
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
-      <PageTitle title="Cricket" navigation={navigation}/>
+      <PageTitle title={sportName} navigation={navigation}/>
 
       <ScrollView style={styles.mainContainer}>
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="ICC Cricket World Cup 2024"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Active"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="Indian Premier League 2023"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Inactive"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="Asia Cup 2023"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Inactive"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="Ashes 2022"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Inactive"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="ICC T-20 World Cup 2022"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Inctive"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="Lankan Premier League 2023"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Inactive"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="Lankan Premier League 2022"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Inactive"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Tournament")}>
-        <GameItem
-          gameName="Lankan Premier League 2021"
-          //gameImage={require("../../../assets/images/evernode.png")}
-          gameStatus="Inactive"
-          gameStartDate="Jan 01, 2024"
-          gameEndDate="March 31, 2024"
-        />
-      </TouchableOpacity>
+       
+      {games.map((game, index) => (
+        <TouchableOpacity key={index} onPress={() => navigation.navigate("Tournament", { title: game.LeagueName, gameId: game.LeagueID })}>
+          <GameItem
+            gameName={game.LeagueName}
+            gameStatus={game.IsActive ? "Active" : "Inactive"}
+            gameStartDate={game.StartDate}
+            gameEndDate={game.EndDate}
+          />
+        </TouchableOpacity>
+      ))}
 
       </ScrollView>
 

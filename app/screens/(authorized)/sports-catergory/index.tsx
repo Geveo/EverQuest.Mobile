@@ -19,7 +19,6 @@ import { Searchbar } from "react-native-paper";
 import SingleSport from "../../../components/single-sport/single-sport";
 import { ScrollView } from "react-native-gesture-handler";
 
-
 export default function SportsCatergory({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [searchQuery, setSearchQuery] = React.useState(""); // search bar
@@ -67,54 +66,62 @@ export default function SportsCatergory({ navigation }) {
       <Text style={styles.heading}> Sports Catergory</Text>
 
       <ScrollView style={styles.mainContainer}>
+        <View style={styles.sportsContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 1, sportName: "Cricket"  })}
+          >
+            <SingleSport
+              sportName="Cricket"
+              sportImage={require("../../../assets/images/cricket-Icon.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 2, sportName: "Rugby"  })}
+          >
+            <SingleSport
+              sportName="Rugby"
+              sportImage={require("../../../assets/images/rugby-Icon.png")}
+            />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.sportsContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("GamesList")}> 
-          <SingleSport
-            sportName="Cricket"
-            sportImage={require("../../../assets/images/cricket-Icon.png")}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <SingleSport
-            sportName="Football"
-            sportImage={require("../../../assets/images/football-Icon.png")}
-          />
-        </TouchableOpacity>
-      </View>
+        <View style={styles.sportsContainer}>
+          <TouchableOpacity
+             onPress={() => navigation.navigate("GamesList", { sportId: 5, sportName: "Football"  })}
+          >
+            <SingleSport
+              sportName="Football"
+              sportImage={require("../../../assets/images/football-Icon.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 4, sportName: "Tennis"  })}
+          >
+            <SingleSport
+              sportName="Tennis"
+              sportImage={require("../../../assets/images/tennis-Icon.png")}
+            />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.sportsContainer}>
-        <TouchableOpacity>
-        <SingleSport
-          sportName="Rugby"
-          sportImage={require("../../../assets/images/rugby-Icon.png")}
-        />
-        </TouchableOpacity>
-        <TouchableOpacity>
-        <SingleSport
-          sportName="Tennis"
-          sportImage={require("../../../assets/images/tennis-Icon.png")}
-        />
-        </TouchableOpacity>
-        
-      </View>
-
-      <View style={styles.sportsContainer}>
-        <TouchableOpacity>
-        <SingleSport
-          sportName="Basketball"
-          sportImage={require("../../../assets/images/basketball-Icon.png")}
-        />
-        </TouchableOpacity>
-        <TouchableOpacity>
-        <SingleSport
-          sportName="Hockey"
-          sportImage={require("../../../assets/images/hockey-Icon.png")}
-        />
-        </TouchableOpacity>
-        
-      </View>
-
+        <View style={styles.sportsContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 3, sportName: "Basketball"  })}
+          >
+            <SingleSport
+              sportName="Basketball"
+              sportImage={require("../../../assets/images/basketball-Icon.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 6, sportName: "Hockey"  })}
+          >
+            <SingleSport
+              sportName="Hockey"
+              sportImage={require("../../../assets/images/hockey-Icon.png")}
+            />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <EQBottomNavigationBar

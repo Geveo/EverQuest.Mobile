@@ -19,7 +19,7 @@ export default function ChallengeItem({ navigation, amount, playerCount,minimumP
           />
         </View>
         <View style={styles.textComponents}>
-          <Text style={styles.textHeading}>XAH {amount}</Text>
+          <Text style={styles.textHeading}>{amount}</Text>
           <Text style={styles.playerCount}>{playerCount} Players Only</Text>
           <View style={styles.subLogo}>
             <Image style={styles.logoCheck}

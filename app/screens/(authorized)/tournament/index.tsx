@@ -19,10 +19,13 @@ import AppTheme from "../../../helpers/theme";
 import PageTitle from "../../../components/page-title/page-title";
 import ChallengeItem from "../../../components/challenge-item/challenge-item";
 import { ScrollView } from "react-native-gesture-handler";
+import axios from "axios";
 
 // Define the Tournament component
-export default function Tournament({ navigation, title }) {
+export default function Tournament({ navigation, route }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [challenges, setChallenges] = useState([]);
+  const { title, gameId } = route.params;
 
   // Function to handle bottom navigation tapped event
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
@@ -55,6 +58,23 @@ export default function Tournament({ navigation, title }) {
     };
   }, [navigation]);
 
+  useEffect(() => {
+    getAllChallenges(gameId);
+  }, []);
+
+  async function getAllChallenges(gameId) {
+    try {
+      console.log(" Before request: ");
+      const response = await axios.get(
+        `http://192.168.1.15:7189/api/games/getLeagueGamesByLeagueId?leagueId=${gameId}`
+      );
+      console.log("Response: ", response.data.Games);
+      setChallenges(response.data.Games);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    }
+  }
+
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <View style={styles.mainContainer}>
@@ -67,7 +87,7 @@ export default function Tournament({ navigation, title }) {
 
           <View style={styles.titleContainer}>
             <Text numberOfLines={2} style={styles.title}>
-              ICC Criket WorldCup 2024
+              {title}
             </Text>
           </View>
 
@@ -109,37 +129,16 @@ export default function Tournament({ navigation, title }) {
       </View>
 
       <ScrollView style={styles.gamesContainer}>
-      <ChallengeItem
-        navigation={navigation}
-        amount={250}
-        playerCount={12}
-        minimumPlayerCount={6}
-        pathOnPress={"Challenge"}
-      />
-
-      <ChallengeItem
-        navigation={navigation}
-        amount={500}
-        playerCount={12}
-        minimumPlayerCount={6}
-        pathOnPress={"Challenge"}
-      />
-
-      <ChallengeItem
-        navigation={navigation}
-        amount={1000}
-        playerCount={12}
-        minimumPlayerCount={6}
-        pathOnPress={"Challenge"}
-      />
-
-      <ChallengeItem
-        navigation={navigation}
-        amount={3000}
-        playerCount={12}
-        minimumPlayerCount={6}
-        pathOnPress={"Challenge"}
-      />
+        {challenges.map((challenge) => (
+          <ChallengeItem
+            key={challenge.GameId}
+            navigation={navigation}
+            amount={challenge.GameName} // Assuming GameName contains the amount
+            playerCount={12} // You may update these values as needed
+            minimumPlayerCount={6} // You may update these values as needed
+            pathOnPress={"Challenge"} // Assuming this is the path onPress action
+          />
+        ))}
       </ScrollView>
 
       <EQBottomNavigationBar

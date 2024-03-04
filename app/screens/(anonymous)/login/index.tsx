@@ -45,7 +45,7 @@ export default function Login({ title, navigation }) {
       try {
         await xrplClient.connect();
 
-        const wallet = Wallet.fromSeed(seed);
+        const wallet = Wallet.fromSeed(seed, { algorithm: xrpl.ECDSA });
         if (wallet) {
           console.log("wallet", wallet);
 
