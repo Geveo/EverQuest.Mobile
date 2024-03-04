@@ -14,8 +14,18 @@ import { Wallet } from "xrpl";
 const xrpl = require("xrpl");
 import AccountService from "../../../services/services-domain/account-service";
 import Toast from "react-native-root-toast";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get("window").width;
+
+const saveCredentials = async (XRP_Address, secret) => {
+  try {
+    await AsyncStorage.setItem('XRP_Address', XRP_Address);
+    await AsyncStorage.setItem('secret', secret);
+  } catch (error) {
+    console.error('Error saving credentials:', error);
+  }
+};
 
 export default function Login({ title, navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
@@ -31,7 +41,7 @@ export default function Login({ title, navigation }) {
   const [error, setError] = useState('');
   const toast = useRef(null);
   const showError = () => {
-    toast.current && toast.current.show(error, { duration: Toast.durations.LONG });
+    //toast.current && toast.current.show(error, { duration: Toast.durations.LONG });
   }
   useEffect(() => {
     async function connect() {
@@ -59,6 +69,7 @@ export default function Login({ title, navigation }) {
           console.log("hasAccount", hasAccount);
           navigation.navigate("HomeScreen")
           if (hasAccount) {
+            saveCredentials(wallet.address, seed);
             navigation.navigate("HomeScreen")
           } else {
             setError("Invalid Login.");

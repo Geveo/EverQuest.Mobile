@@ -9,7 +9,7 @@ import {
 import AppTheme from "../../helpers/theme";
 import SCButtonWithoutArrow from "../button-without-arrow/button-without-arrow";
 
-export default function ChallengeItem({ navigation, amount, playerCount,minimumPlayerCount, pathOnPress }) {
+export default function ChallengeItem({ navigation, amount, playerCount,minimumPlayerCount,  callParentMethod}) {
 
   return (
     <View style={styles.mainContainer}>
@@ -31,7 +31,10 @@ export default function ChallengeItem({ navigation, amount, playerCount,minimumP
           <View style={styles.button}>
         <SCButtonWithoutArrow
           text="Join Game"
-          onTap={() => navigation.navigate(pathOnPress)}
+        //  onTap={() => navigation.navigate(pathOnPress)}
+          onTap={() => {
+            callParentMethod(); // Call the function passed from the parent
+          }}
         />
       </View>
           

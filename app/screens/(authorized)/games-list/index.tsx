@@ -46,7 +46,7 @@ export default function GamesList({ navigation }) {
   async function getAllGames(sportId) {
     try {
       //console.log(" Before request: ");
-      const response = await axios.get(`http://192.168.1.15:7189/api/games/getLeaguesBySportID?sportID=${sportId}`);
+      const response = await axios.get(`http://192.168.8.101:7189/api/games/getLeaguesBySportID?sportID=${sportId}`);
       //console.log("Response: ", response.data);
       const sortedGames = response.data.Leagues.map(game => ({
         ...game,
