@@ -16,7 +16,7 @@ const SCButtonWithoutArrow = ({
 }) => {
   return (
     <TouchableOpacity
-      onPress={onTap}
+      onPress={() => onTap()}
       style={[styles.container, { backgroundColor: bgColor }]}
     >
       <Text style={[styles.text, { color: textColor }]}>{text}</Text>

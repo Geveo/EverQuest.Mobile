@@ -126,7 +126,6 @@ export default function Tournament({ navigation, route }) {
         return false;
       }
     );
-
     return () => {
       if (backHandler.remove) {
         backHandler.remove();
@@ -135,15 +134,22 @@ export default function Tournament({ navigation, route }) {
   }, [navigation]);
 
   useEffect(() => {
-    checkIssuedCurrencyBalance("rEALPVCk8pwkDLJemLQd4TN3hrphTZWdJY", "EVR", "rM1fW221wzo8DW3CvXBgmCVahQ8cxxfLNz");
-    getAllChallenges(gameId);
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      // The screen is focused
+      // Call your functions here
+      checkIssuedCurrencyBalance("rEALPVCk8pwkDLJemLQd4TN3hrphTZWdJY", "EVR", "rM1fW221wzo8DW3CvXBgmCVahQ8cxxfLNz");
+      getAllChallenges(gameId);
+    });
+  
+    // Return the unsubscribe function to clean up the listener
+    return unsubscribe;
+  }, [navigation]); // Add navigation as a dependency
 
   async function getAllChallenges(gameId) {
     try {
       console.log(" Before request: ");
       const response = await axios.get(
-        `http://192.168.8.101:7189/api/games/getLeagueGamesByLeagueId?leagueId=${gameId}`
+        `http://192.168.1.15:7189/api/games/getLeagueGamesByLeagueId?leagueId=${gameId}`
       );
       console.log("Response: ", response.data.Games);
       setChallenges(response.data.Games);
@@ -154,7 +160,7 @@ export default function Tournament({ navigation, route }) {
   const fromAddress = "rEALPVCk8pwkDLJemLQd4TN3hrphTZWdJY"
   const secret = "shyjUnWWT8ZxzSboDPti3qoqQxVgP"
   const toAddress = "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y"
-  const amount = "5" // Amount of EVR to send
+  const amount = "20" // Amount of EVR to send
   
   //sendXRP(fromAddress, secret, toAddress, amount).catch(console.error)
   return (
@@ -218,7 +224,7 @@ export default function Tournament({ navigation, route }) {
             amount={challenge.GameName} // Assuming GameName contains the amount
             playerCount={12} // You may update these values as needed
             minimumPlayerCount={6} // You may update these values as needed
-            callParentMethod={sendXRP(fromAddress, secret, toAddress, amount)}
+            callParentMethod={() =>  sendXRP(fromAddress, secret, toAddress, amount) }
             //pathOnPress={"Challenge"} // Assuming this is the path onPress action
           />
         ))}

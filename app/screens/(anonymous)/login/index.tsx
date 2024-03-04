@@ -15,6 +15,8 @@ const xrpl = require("xrpl");
 import AccountService from "../../../services/services-domain/account-service";
 import Toast from "react-native-root-toast";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showToast } from "../../../services/toast-service";
+import { ToastMessageTypes } from "../../../helpers/constants";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -69,9 +71,11 @@ export default function Login({ title, navigation }) {
           console.log("hasAccount", hasAccount);
           navigation.navigate("HomeScreen")
           if (hasAccount) {
+            showToast("User Logged In...!", ToastMessageTypes.success);
             saveCredentials(wallet.address, seed);
             navigation.navigate("HomeScreen")
           } else {
+            showToast("Invalid Login!", ToastMessageTypes.error);
             setError("Invalid Login.");
             console.log("Error", error);
             showError()
