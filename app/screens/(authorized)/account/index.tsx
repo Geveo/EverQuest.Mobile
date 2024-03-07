@@ -15,6 +15,9 @@ import EQBottomNavigationBar, {
 } from "../../../components/bottom-navigation-bar/bottom-navigation-bar";
 import SCButton from "../../../components/button/button";
 import PageTitle from "../../../components/page-title/page-title";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { showToast } from "../../../services/toast-service";
+import { ToastMessageTypes } from "../../../helpers/constants";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -48,9 +51,21 @@ export default function Account({ navigation }) {
     return true;
   }
 
-  async function signOut() {
-    console.log("Sign out");
-  }
+  const signOut = async () => {
+    try {
+      // Clear AsyncStorage
+      await AsyncStorage.removeItem('XRP_Address');
+      await AsyncStorage.removeItem('secret');
+      // Show sign-out success toast message
+      showToast("Signed out successfully", ToastMessageTypes.success);
+      // Navigate to login page
+      navigation.navigate('LoginScreen');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Show sign-out error toast message
+      showToast("Failed to sign out", ToastMessageTypes.error);
+    }
+  };
 
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>

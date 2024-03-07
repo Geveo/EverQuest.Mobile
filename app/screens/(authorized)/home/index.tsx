@@ -51,7 +51,7 @@ export default function Home({ navigation }) {
         strategic game. 
       </Text>
       <Text style={styles.infoText}>
-      You, as the player, challenge other players in a unique knock-out game
+      You, as a player, challenge other players in a unique knock-out game
       </Text>
       <Text style={styles.infoText}>
         based on your favorite real life 

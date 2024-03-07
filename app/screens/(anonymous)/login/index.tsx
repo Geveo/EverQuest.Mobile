@@ -71,7 +71,7 @@ export default function Login({ title, navigation }) {
           console.log("hasAccount", hasAccount);
           navigation.navigate("HomeScreen")
           if (hasAccount) {
-            showToast("User Logged In...!", ToastMessageTypes.success);
+            showToast("Login Succesful", ToastMessageTypes.success);
             saveCredentials(wallet.address, seed);
             navigation.navigate("HomeScreen")
           } else {

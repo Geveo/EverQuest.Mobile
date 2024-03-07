@@ -19,6 +19,7 @@ import GameItem from "../../../components/game-item/game-item";
 import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios";
 import { useRoute, RouteProp  } from '@react-navigation/native';
+const { GameEngineApiParameters } = require(".../../../app/constants/constants");
 
 
 export default function GamesList({ navigation }) {
@@ -45,9 +46,9 @@ export default function GamesList({ navigation }) {
 
   async function getAllGames(sportId) {
     try {
-      //console.log(" Before request: ");
-      const response = await axios.get(`http://192.168.1.15:7189/api/games/getLeaguesBySportID?sportID=${sportId}`);
-      //console.log("Response: ", response.data);
+      console.log(" Before request: ");
+      const response = await axios.get(`${GameEngineApiParameters.URL}/api/games/getLeaguesBySportID?sportID=${sportId}`);
+      console.log("Response: ", response.data);
       const sortedGames = response.data.Leagues.map(game => ({
         ...game,
         StartDate: game.StartDate.substring(0, 10),

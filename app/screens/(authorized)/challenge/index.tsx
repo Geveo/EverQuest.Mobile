@@ -19,11 +19,12 @@ import PageTitle from "../../../components/page-title/page-title";
 import CountryComponent from "../../../components/country-component/country-component";
 import SCButtonWithoutArrow from "../../../components/button-without-arrow/button-without-arrow";
 
-export default function Challenge({ navigation }) {
+export default function Challenge({ navigation, route }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [activeTab, setActiveTab] = useState("Teams");
   const [RoundNumber, setRoundNumber] = useState(1);
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const { amount } = route.params;
 
   const handleRadioButtonPress = (countryName) => {
     setSelectedCountry(countryName);
@@ -60,7 +61,7 @@ export default function Challenge({ navigation }) {
 
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
-      <PageTitle title="Rs. 250" navigation={navigation} />
+      <PageTitle title={`${amount}`} navigation={navigation} />
       <Text style={styles.roundHeading}>Round 1</Text>
       <Text style={styles.roundText}>Choose the team that you think</Text>
       <Text style={styles.roundText}>is going to win</Text>
