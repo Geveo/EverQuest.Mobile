@@ -95,7 +95,7 @@ export default function SportsCatergory({ navigation }) {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate("GamesList", { sportId: 4, sportName: "Tennis"  })}
+            onPress={() => navigation.navigate("GamesList", { sportId: 7, sportName: "Tennis"  })}
           >
             <SingleSport
               sportName="Tennis"
@@ -106,7 +106,7 @@ export default function SportsCatergory({ navigation }) {
 
         <View style={styles.sportsContainer}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("GamesList", { sportId: 3, sportName: "Basketball"  })}
+            onPress={() => navigation.navigate("GamesList", { sportId: 8, sportName: "Basketball"  })}
           >
             <SingleSport
               sportName="Basketball"
@@ -114,7 +114,7 @@ export default function SportsCatergory({ navigation }) {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate("GamesList", { sportId: 6, sportName: "Hockey"  })}
+            onPress={() => navigation.navigate("GamesList", { sportId: 9, sportName: "Hockey"  })}
           >
             <SingleSport
               sportName="Hockey"

@@ -53,7 +53,8 @@ export default function RoundDetails({ navigation }) {
         <Text style= {styles.tableFont}>Status</Text>
       </View>
       <ScrollView style= {styles.scrollviewContainer} >
-      <ResultCountryComponent
+        
+      {/* <ResultCountryComponent
         countryName={"Sri Lanka"}
         countryImage={require("../../../assets/images/LK.png")}
         success={true}
@@ -87,7 +88,8 @@ export default function RoundDetails({ navigation }) {
         countryName={"New Zealand"}
         countryImage={require("../../../assets/images/NZ.png")}
         success={true}
-      />
+      /> */}
+
       </ScrollView>
       
       <EQBottomNavigationBar

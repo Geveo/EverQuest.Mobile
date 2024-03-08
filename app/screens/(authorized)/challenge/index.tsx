@@ -18,22 +18,39 @@ import AppTheme from "../../../helpers/theme";
 import PageTitle from "../../../components/page-title/page-title";
 import CountryComponent from "../../../components/country-component/country-component";
 import SCButtonWithoutArrow from "../../../components/button-without-arrow/button-without-arrow";
+import axios from "axios";
+import { set } from "date-fns";
+const {
+  GameEngineApiParameters,
+} = require(".../../../app/constants/constants");
 
 export default function Challenge({ navigation, route }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [activeTab, setActiveTab] = useState("Teams");
   const [RoundNumber, setRoundNumber] = useState(1);
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const { amount } = route.params;
+  const [selectedCountryId, setSelectedCountryId] = useState(null);
+  const [roundMatches, setRoundMatches] = useState([]);
+  const [gameParticipantID, setGameParticipantID] = useState(0);
+  //const { amount } = route.params;
+  const amount = 100;
 
-  const handleRadioButtonPress = (countryName) => {
-    setSelectedCountry(countryName);
+  const handleSubmitButtonPress = () => {
+    console.log("Submit button pressed");
+    submitUserResponse();
+    console.log("GameParticipantID", gameParticipantID);
   };
 
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
   }
+
+  const handleCountryPress = (coutnryName, countryId) => {
+    console.log("Country pressed in challenge screen");
+    setSelectedCountry(coutnryName);
+    setSelectedCountryId(countryId);
+  };
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -58,6 +75,44 @@ export default function Challenge({ navigation, route }) {
   const handleTabSelection = (tabName) => {
     setActiveTab(tabName);
   };
+
+  const getCountryDetails = async () => {
+    try {
+      console.log("Before getting countries");
+      const response = await axios.get(
+        `${GameEngineApiParameters.URL}/api/games/GetMatchesForRound?gameId=1122&userId=3472&gameParticipantID=0`
+      );
+      console.log("After getting countries", response.data);
+      if (response.data && response.data.RoundMatches) {
+        setRoundMatches(response.data.RoundMatches);
+      } else {
+        console.log("RoundMatches not found in response");
+      }
+    } catch (error) {
+      console.log("Error getting countries", error);
+    }
+  };
+
+  const submitUserResponse = async () => {
+    try {
+      console.log("Before getting countries");
+      const response = await axios.post(
+        `${GameEngineApiParameters.URL}/api/games/saveGameParticipants?gameId=1122&userId=3472&newMatchTeamId=${selectedCountryId}&gameAmount=50`
+      );
+      console.log("After getting countries", response.data);
+      if (response.data && response.data.gameParticipantId) {
+        setGameParticipantID(response.data.gameParticipantId);
+      } else {
+        console.log("RoundMatches not found in response");
+      }
+    } catch (error) {
+      console.log("Error getting countries", error);
+    }
+  };
+
+  useEffect(() => {
+    getCountryDetails();
+  }, []);
 
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
@@ -102,65 +157,58 @@ export default function Challenge({ navigation, route }) {
           </TouchableOpacity>
         </View>
       </View>
+
       {activeTab === "Teams" ? (
-        <ScrollView style={styles.tabContent1}>
-          <CountryComponent
-            countryName={"Sri Lanka"}
-            countryImage={require("../../../assets/images/LK.png")}
-            isActive={selectedCountry === "Sri Lanka"}
-            onPress={handleRadioButtonPress}
-          />
-          <Text style={styles.vsTExt}> vs </Text>
-          <CountryComponent
-            countryName={"England"}
-            countryImage={require("../../../assets/images/GB.png")}
-            isActive={selectedCountry === "England"}
-            onPress={handleRadioButtonPress}
-          />
-          <View style={styles.horizontalDivider} />
-          <CountryComponent
-            countryName={"Australia"}
-            countryImage={require("../../../assets/images/AUS.png")}
-            isActive={selectedCountry === "Australia"}
-            onPress={handleRadioButtonPress}
-          />
-          <Text style={styles.vsTExt}> vs </Text>
-          <CountryComponent
-            countryName={"South Africa"}
-            countryImage={require("../../../assets/images/ZA.png")}
-            isActive={selectedCountry === "South Africa"}
-            onPress={handleRadioButtonPress}
-          />
-          <View style={styles.horizontalDivider} />
-          <CountryComponent
-            countryName={"India"}
-            countryImage={require("../../../assets/images/IN.png")}
-            isActive={selectedCountry === "India"}
-            onPress={handleRadioButtonPress}
-          />
-          <Text style={styles.vsTExt}> vs </Text>
-          <CountryComponent
-            countryName={"Afghanistan"}
-            countryImage={require("../../../assets/images/AFG.png")}
-            isActive={selectedCountry === "Afghanistan"}
-            onPress={handleRadioButtonPress}
-          />
-          <View style={styles.horizontalDivider} />
-          <CountryComponent
-            countryName={"Pakistan"}
-            countryImage={require("../../../assets/images/PK.png")}
-            isActive={selectedCountry === "Pakistan"}
-            onPress={handleRadioButtonPress}
-          />
-          <Text style={styles.vsTExt}> vs </Text>
-          <CountryComponent
-            countryName={"New Zealand"}
-            countryImage={require("../../../assets/images/NZ.png")}
-            isActive={selectedCountry === "New Zealand"}
-            onPress={handleRadioButtonPress}
-          />
-          <View style={styles.horizontalDivider} />
-        </ScrollView>
+        <View style={styles.tabContent1}>
+          <TouchableOpacity
+            style={styles.submitButtonContainer}
+            onPress={() => {
+              handleSubmitButtonPress();
+            }}
+          >
+            <Text style={styles.submitButtonText}>Submit</Text>
+          </TouchableOpacity>
+
+          <ScrollView style={styles.tabContent1}>
+            {roundMatches.map((match, index) => {
+              // Remove spaces from country names and convert to lowercase
+              const teamNameLeftFormatted = match.TeamNameLeft.replace(
+                /\s+/g,
+                "_"
+              ).toLowerCase();
+              const teamNameRightFormatted = match.TeamNameRight.replace(
+                /\s+/g,
+                "_"
+              ).toLowerCase();
+
+              return (
+                <View key={index}>
+                  <TouchableOpacity
+                    onPress={()=> {handleCountryPress(match.TeamNameLeft, match.MatchTeamIDLeft)}}
+                  >
+                  <CountryComponent
+                    countryName={match.TeamNameLeft}
+                    countryImage={require(`../../../assets/images/south_africa.png`)}
+                    active={selectedCountry === match.TeamNameLeft ? true : false}
+                  />
+                  </TouchableOpacity>
+                  <Text style={styles.vsTExt}> vs </Text>
+
+                  <TouchableOpacity
+                    onPress={()=> {handleCountryPress(match.TeamNameRight, match.MatchTeamIDRight)}}
+                  >
+                  <CountryComponent
+                    countryName={match.TeamNameRight}
+                    countryImage={require(`../../../assets/images/australia.png`)}
+                    active={selectedCountry === match.TeamNameRight ? true : false}
+                  />
+                  </TouchableOpacity>
+                  <View style={styles.horizontalDivider} />
+                </View>
+              );
+            })}
+          </ScrollView>
+        </View>
       ) : (
         <View style={styles.resultContainer}>
           <Text style={styles.resultGreet}>Congratulations !!!</Text>
@@ -245,21 +293,8 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: AppTheme.colors.backButtonGreen, // Set text color for active tab //added as a change
   },
-  vsTExt: {
-    alignSelf: "center",
-    fontSize: 20,
-    fontWeight: "600",
-    color: AppTheme.colors.textGrey,
-  },
-  horizontalDivider: {
-    borderBottomColor: AppTheme.colors.buttonGreen,
-    borderBottomWidth: 0.5,
-    marginVertical: 15,
-    width: "80%",
-    alignSelf: "center",
-  },
   tabContent1: {
-    marginBottom: 100,
+    marginBottom: 210,
   },
   resultContainer: {
     marginVertical: 20,
@@ -287,5 +322,31 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     borderBottomColor: AppTheme.colors.textGrey,
     borderBottomWidth: 1,
+  },
+  submitButtonContainer: {
+    backgroundColor: AppTheme.colors.emailGreen,
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 30,
+    marginTop: 0,
+    marginBottom: 20,
+  },
+  submitButtonText: {
+    color: AppTheme.colors.white,
+    fontWeight: "600",
+    alignSelf: "center",
+  },
+  vsTExt: {
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "600",
+    color: AppTheme.colors.textGrey,
+  },
+  horizontalDivider: {
+    borderBottomColor: AppTheme.colors.buttonGreen,
+    borderBottomWidth: 0.5,
+    marginVertical: 30,
+    width: "80%",
+    alignSelf: "center",
   },
 });
