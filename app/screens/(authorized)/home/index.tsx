@@ -61,9 +61,9 @@ export default function Home({ navigation }) {
       </Text>
       <View style={styles.button}>
         <SCButton
-          text="Start Playing"
+          text="Joined Games"
           showRightArrow={true}
-          onTap={() => navigation.navigate("SportsCatergory")}
+          onTap={() => navigation.navigate("AllJoinedGamespage")}
         />
       </View>
       <EQBottomNavigationBar

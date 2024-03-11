@@ -11,6 +11,7 @@ import Tournament from "./screens/(authorized)/tournament";
 import Challenge from "./screens/(authorized)/challenge";
 import RoundDetails from "./screens/(authorized)/round-details";
 import Login from "./screens/(anonymous)/login";
+import AllJoinedGamespage from "./screens/(authorized)/joined-games";
 
 const Stack = createStackNavigator();
 
@@ -85,6 +86,12 @@ export default function App() {
           name="LoginScreen"
           component={Login}
           options={{ title: "LoginScreen" }}
+        />
+
+        <Stack.Screen
+          name="AllJoinedGamespage"
+          component={AllJoinedGamespage}
+          options={{ title: "AllJoinedGamespage" }}
         />
         
       </Stack.Navigator>

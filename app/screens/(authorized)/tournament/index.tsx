@@ -21,6 +21,7 @@ import ChallengeItem from "../../../components/challenge-item/challenge-item";
 import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import JoinedGame from "../../../components/joined-game/joined-game";
 const xrpl = require("xrpl");
 const {
   GameEngineApiParameters,
@@ -31,11 +32,12 @@ const {
 export default function Tournament({ navigation, route }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [challenges, setChallenges] = useState([]);
+  const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
   const { title, gameId } = route.params;
   const [availableFunds, setAvailableFunds] = useState(0);
   const [secret, setSecret] = useState("");
   const [fromAddress, setFromAddress] = useState("");
-  const [activeTab, setActiveTab] = useState("Teams");
+  const [activeTab, setActiveTab] = useState("All Games");
 
   const toAddress = "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y";
   const gameValue = "1"; // Amount of EVR to send
@@ -99,18 +101,19 @@ export default function Tournament({ navigation, route }) {
     }
   }
 
-  async function sendXRP(fromAddress, secret, toAddress, gameValue, amount) {
+  //TODO: Change the game amount in the server
+  async function sendXRP(fromAddress, secret, toAddress, gameValue, amount, gameId, gameAmount) {
     try {
-      const responseDBCall = await axios.post(
-        `${GameEngineApiParameters.URL}/api/games/updateFundsForUser`,
-        {
-          gameId: 100,
-        }
-      );
-      
-      console.log("Response: ", responseDBCall.data);
+      // const responseDBCall = await axios.post(
+      //   `${GameEngineApiParameters.URL}/api/games/updateFundsForUser`,
+      //   {
+      //     gameId: 100,
+      //   }
+      // );
 
-      if (responseDBCall.data) {
+      // console.log("Response: ", responseDBCall.status);
+
+      //if (responseDBCall.data) {
         // Connect to the XRP Ledger
         const client = new xrpl.Client("wss://xahau-test.net/");
         await client.connect();
@@ -143,7 +146,7 @@ export default function Tournament({ navigation, route }) {
         console.log("Transaction result:", result);
 
         if (result.result.meta.TransactionResult === "tesSUCCESS") {
-          navigation.navigate("Challenge", { amount });
+          navigation.navigate("Challenge", { amount, gameId, gameAmount });
           //console.log(`Transaction succeeded: https://testnet.xrpl.org/transactions/${id}`)
         } else {
           console.log(
@@ -154,7 +157,7 @@ export default function Tournament({ navigation, route }) {
 
         // Disconnect from the client
         await client.disconnect();
-      }
+      //}
     } catch (error) {
       console.error("Error:", error);
       // Handle the error (e.g., show an error message to the user)
@@ -198,6 +201,7 @@ export default function Tournament({ navigation, route }) {
     });
 
     getAllChallenges(gameId);
+    joinedGames();
     //});
     // Return the unsubscribe function to clean up the listener
     //return unsubscribe;
@@ -205,16 +209,35 @@ export default function Tournament({ navigation, route }) {
 
   async function getAllChallenges(gameId) {
     try {
-      console.log(" Before request: ");
+      console.log(" Before request of Joined Games: ");
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getLeagueGamesByLeagueId?leagueId=${gameId}`
       );
-      console.log("Response: ", response.data.Games);
+      console.log("Joioned Games: ", response.data.Games);
       setChallenges(response.data.Games);
     } catch (error) {
       console.error("Error fetching games:", error);
     }
   }
+
+  const joinedGames = async () => {
+    try {
+      console.log("Before getting joinedGames");
+      const response = await axios.get(
+        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=3472`
+      );
+      console.log("After getting joinedGames", response.data);
+      if (response.data) {
+        const { Feeds } = response.data;
+        console.log("Feeds:", Feeds);
+        setJoinedGamesPreviously(Feeds);
+      } else {
+        console.log("RoundMatches not found in response");
+      }
+    } catch (error) {
+      console.log("Error getting countries", error);
+    }
+  };
 
   //sendXRP(fromAddress, secret, toAddress, amount).catch(console.error)
   return (
@@ -255,7 +278,7 @@ export default function Tournament({ navigation, route }) {
               source={require("../../../assets/images/Avatar.png")}
             />
             <Text style={styles.userName}>Test User</Text>
-            <Text style={styles.userEmail}>test@test.com</Text>
+            {/* <Text style={styles.userEmail}>test@test.com</Text> */}
           </View>
           <View style={styles.rightSide}>
             <View style={styles.top}>
@@ -270,7 +293,7 @@ export default function Tournament({ navigation, route }) {
         </View>
       </View>
 
-<View style={styles.mainTabContainer}>
+      <View style={styles.mainTabContainer}>
         <View style={styles.tabContainerHeading}>
           <TouchableOpacity
             style={[
@@ -308,27 +331,43 @@ export default function Tournament({ navigation, route }) {
       </View>
       {activeTab === "All Games" ? (
         <ScrollView style={styles.tabContent1}>
-          {challenges.map((challenge) => (
-          <ChallengeItem
-            key={challenge.GameId}
-            navigation={navigation}
-            amount={challenge.GameName} // Assuming GameName contains the amount
-            playerCount={12} // You may update these values as needed
-            minimumPlayerCount={6} // You may update these values as needed
-            callParentMethod={() =>
-              sendXRP(fromAddress, secret, toAddress, gameValue, challenge.GameName)
-            }
-            //pathOnPress={"Challenge"} // Assuming this is the path onPress action
-          />
-        ))}
+          {challenges
+          .filter(game => game.RoundNumber === 1) // Filter games based on title match
+          .map((challenge) => (
+            <ChallengeItem
+              key={challenge.GameId}
+              navigation={navigation}
+              amount={challenge.GameName} // Assuming GameName contains the amount
+              playerCount={12} // You may update these values as needed
+              minimumPlayerCount={6} // You may update these values as needed
+              callParentMethod={() =>
+                sendXRP(
+                  fromAddress,
+                  secret,
+                  toAddress,
+                  gameValue,
+                  challenge.GameName,
+                  challenge.GameId,
+                  challenge.GameAmount
+                )
+              }
+              //pathOnPress={"Challenge"} // Assuming this is the path onPress action
+            />
+          ))}
         </ScrollView>
       ) : (
-        <View style={styles.resultContainer}>
-          
-        </View>
+        <ScrollView style={styles.resultContainer}>
+          {joinedGamesPreviously
+            .filter(game => game.LeagueName.toLowerCase() === title.toLowerCase()) // Filter games based on title match
+            .map((game, index) => (
+              <JoinedGame
+                key={index} // Ensure each child component has a unique key
+                gameName={game.GameName} // Pass the game name
+                LeagueName={game.LeagueName} // Pass the league name
+              />
+            ))}
+        </ScrollView>
       )}
-
-      
 
       <EQBottomNavigationBar
         navigation={navigation}
@@ -524,6 +563,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     alignSelf: "center",
     width: "80%",
+    marginBottom: 100,
   },
   resultGreet: {
     fontSize: 20,

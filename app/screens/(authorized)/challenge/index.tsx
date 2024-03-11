@@ -32,8 +32,14 @@ export default function Challenge({ navigation, route }) {
   const [selectedCountryId, setSelectedCountryId] = useState(null);
   const [roundMatches, setRoundMatches] = useState([]);
   const [gameParticipantID, setGameParticipantID] = useState(0);
-  //const { amount } = route.params;
-  const amount = 100;
+
+  const [isFinished, setIsFinished] = useState(true);
+  const [sucessful, setSucessful] = useState(false);
+  const [hasWonRound, setHasWonRound] = useState(false);
+
+  const { amount, gameId, gameAmount } = route.params;
+
+  //const amount = 100;
 
   const handleSubmitButtonPress = () => {
     console.log("Submit button pressed");
@@ -80,7 +86,7 @@ export default function Challenge({ navigation, route }) {
     try {
       console.log("Before getting countries");
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/GetMatchesForRound?gameId=1122&userId=3472&gameParticipantID=0`
+        `${GameEngineApiParameters.URL}/api/games/GetMatchesForRound?gameId=${gameId}&userId=3472&gameParticipantID=0`
       );
       console.log("After getting countries", response.data);
       if (response.data && response.data.RoundMatches) {
@@ -95,13 +101,14 @@ export default function Challenge({ navigation, route }) {
 
   const submitUserResponse = async () => {
     try {
-      console.log("Before getting countries");
+      console.log("Before selecting a country");
       const response = await axios.post(
-        `${GameEngineApiParameters.URL}/api/games/saveGameParticipants?gameId=1122&userId=3472&newMatchTeamId=${selectedCountryId}&gameAmount=50`
+        `${GameEngineApiParameters.URL}/api/games/saveGameParticipants?gameId=${gameId}&userId=3472&newMatchTeamId=${selectedCountryId}&gameAmount=50`
       );
-      console.log("After getting countries", response.data);
+      console.log("After selecting a country", response.data);
       if (response.data && response.data.gameParticipantId) {
         setGameParticipantID(response.data.gameParticipantId);
+        setSucessful(true);
       } else {
         console.log("RoundMatches not found in response");
       }
@@ -112,13 +119,13 @@ export default function Challenge({ navigation, route }) {
 
   useEffect(() => {
     getCountryDetails();
-  }, []);
+  }, [activeTab]);
 
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <PageTitle title={`${amount}`} navigation={navigation} />
-      <Text style={styles.roundHeading}>Round 1</Text>
-      <Text style={styles.roundText}>Choose the team that you think</Text>
+      <Text style={styles.roundHeading}>Round 1 {gameId} </Text>
+      <Text style={styles.roundText}>Choose a team that you think</Text>
       <Text style={styles.roundText}>is going to win</Text>
 
       <View style={styles.mainTabContainer}>
@@ -160,6 +167,13 @@ export default function Challenge({ navigation, route }) {
 
       {activeTab === "Teams" ? (
         <View style={styles.tabContent1}>
+          { sucessful ? (
+            <>
+            <Text style={styles.textResult}>
+              Your selection has been submitted
+              </Text>
+            </>
+          ): (<>
           <TouchableOpacity
             style={styles.submitButtonContainer}
             onPress={() => {
@@ -167,41 +181,46 @@ export default function Challenge({ navigation, route }) {
             }}
           >
             <Text style={styles.submitButtonText}>Submit</Text>
-          </TouchableOpacity>
+          </TouchableOpacity></>)}
+          
 
           <ScrollView style={styles.tabContent1}>
             {roundMatches.map((match, index) => {
-              // Remove spaces from country names and convert to lowercase
-              const teamNameLeftFormatted = match.TeamNameLeft.replace(
-                /\s+/g,
-                "_"
-              ).toLowerCase();
-              const teamNameRightFormatted = match.TeamNameRight.replace(
-                /\s+/g,
-                "_"
-              ).toLowerCase();
-
               return (
                 <View key={index}>
                   <TouchableOpacity
-                    onPress={()=> {handleCountryPress(match.TeamNameLeft, match.MatchTeamIDLeft)}}
+                    onPress={() => {
+                      handleCountryPress(
+                        match.TeamNameLeft,
+                        match.MatchTeamIDLeft
+                      );
+                    }}
                   >
-                  <CountryComponent
-                    countryName={match.TeamNameLeft}
-                    countryImage={require(`../../../assets/images/south_africa.png`)}
-                    active={selectedCountry === match.TeamNameLeft ? true : false}
-                  />
+                    <CountryComponent
+                      countryName={match.TeamNameLeft}
+                      countryImage={require(`../../../assets/images/DummyCountry.png`)}
+                      active={
+                        selectedCountry === match.TeamNameLeft ? true : false
+                      }
+                    />
                   </TouchableOpacity>
                   <Text style={styles.vsTExt}> vs </Text>
 
                   <TouchableOpacity
-                    onPress={()=> {handleCountryPress(match.TeamNameRight, match.MatchTeamIDRight)}}
+                    onPress={() => {
+                      handleCountryPress(
+                        match.TeamNameRight,
+                        match.MatchTeamIDRight
+                      );
+                    }}
                   >
-                  <CountryComponent
-                    countryName={match.TeamNameRight}
-                    countryImage={require(`../../../assets/images/australia.png`)}
-                    active={selectedCountry === match.TeamNameRight ? true : false}
-                  />
+                    <CountryComponent
+                      countryName={match.TeamNameRight}
+                      countryImage={require(`../../../assets/images/DummyCountry.png`)}
+                      active={
+                        selectedCountry === match.TeamNameRight ? true : false
+                      }
+                    />
                   </TouchableOpacity>
                   <View style={styles.horizontalDivider} />
                 </View>
@@ -211,19 +230,53 @@ export default function Challenge({ navigation, route }) {
         </View>
       ) : (
         <View style={styles.resultContainer}>
-          <Text style={styles.resultGreet}>Congratulations !!!</Text>
-          <Text style={styles.textResult}>
-            You have won Round {RoundNumber}
-          </Text>
+          {isFinished ? (
+            <>
+              {hasWonRound ? (
+                <>
+                  <Text style={styles.resultGreet}>Congratulations !!!</Text>
+                  <Text style={styles.textResult}>
+                    You have won Round {RoundNumber}
+                  </Text>
 
-          <SCButtonWithoutArrow text="Round 2" />
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("RoundDetails");
-            }}
-          >
-            <Text style={styles.detailsText}> Round Details </Text>
-          </TouchableOpacity>
+                  <SCButtonWithoutArrow text="Round 2" />
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("RoundDetails");
+                    }}
+                  >
+                    <Text style={styles.detailsText}> Round Details </Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.resultWrong}>Wrong guess !!!</Text>
+                  <Text style={styles.textDisqualified}>
+                    Sorry, You have been disqualified 
+                  </Text>
+                  <Text style={styles.textDisqualified}>
+                    from the competition
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("RoundDetails");
+                    }}
+                  >
+                    <Text style={styles.detailsText}> Round Details </Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Text style={styles.textResult}>
+                Round has not been finished yet
+              </Text>
+              <Text style={styles.textResult}>
+                Wait till the round finishes to see the result
+              </Text>
+            </>
+          )}
         </View>
       )}
 
@@ -307,12 +360,25 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     color: AppTheme.colors.splashGreen,
   },
+  resultWrong: {
+    fontSize: 20,
+    fontWeight: "600",
+    alignSelf: "center",
+    color: AppTheme.colors.red,
+    marginBottom: 40,
+  },
   textResult: {
     marginVertical: 20,
     fontSize: 16,
     alignSelf: "center",
     color: AppTheme.colors.darkGrey,
-    marginBottom: 40,
+    
+  },
+  textDisqualified: {
+    marginTop: 10,
+    fontSize: 16,
+    alignSelf: "center",
+    color: AppTheme.colors.darkGrey,
   },
   detailsText: {
     fontSize: 16,
