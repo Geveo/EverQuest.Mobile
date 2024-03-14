@@ -1,29 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Image,
   Text,
   View,
   StyleSheet,
   Dimensions,
-  TextInput,
+  Linking,
 } from "react-native";
 import AppTheme from "../../../helpers/theme";
 import SCButtonWithoutArrow from "../../../components/button-without-arrow/button-without-arrow";
 import AnonymousLayout from "../../../components/layouts/anonymous-layout";
 import "text-encoding";
-import { Wallet } from "xrpl";
-const xrpl = require("xrpl");
 import AccountService from "../../../services/services-domain/account-service";
 import Toast from "react-native-root-toast";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { showToast } from "../../../services/toast-service";
 import { ToastMessageTypes } from "../../../helpers/constants";
 
+import {jwtDecode, JwtPayload} from 'jwt-decode';
+
 const screenWidth = Dimensions.get("window").width;
 
-const saveCredentials = async (XRP_Address, secret) => {
+const saveCredentials = async (xrpaddress, token) => {
   try {
-    await AsyncStorage.setItem('XRP_Address', XRP_Address);
-    await AsyncStorage.setItem('secret', secret);
+    await AsyncStorage.setItem('XRP_Address', xrpaddress);
+    await AsyncStorage.setItem('token', token);
   } catch (error) {
     console.error('Error saving credentials:', error);
   }
@@ -31,69 +32,58 @@ const saveCredentials = async (XRP_Address, secret) => {
 
 export default function Login({ title, navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
-  const UrlConstants = {
-    XRPL_URL: "wss://xahau-test.net/",
-  };
-  const xrplClient = new xrpl.Client(UrlConstants.XRPL_URL);
+  const toast = useRef(null);
   if (!AccountService.instance) {
     AccountService.instance = new AccountService();
   }
   const _accountService = AccountService.instance;
-  const [seed, setSeed] = useState('');
-  const [error, setError] = useState('');
-  const toast = useRef(null);
-  const showError = () => {
-    //toast.current && toast.current.show(error, { duration: Toast.durations.LONG });
-  }
-  useEffect(() => {
-    async function connect() {
-      await xrplClient.connect();
-    }
-    connect();
-  }, [xrplClient]);
+
+  Linking.addEventListener('url', async (event: {url: string}) => {
+    let u = new URL(event.url);
+    let token = u.searchParams.get('access_token');
+    let jwtDecoded = jwtDecode<JwtPayload>(token);
+    let xrpaddress = jwtDecoded.sub
+    saveCredentials(xrpaddress, token)
+    await AsyncStorage.setItem('XRP_Address', xrpaddress);
+    await AsyncStorage.setItem('token', token);
+
+    const msgObj = {
+      XRP_Address: xrpaddress
+    };
+    _accountService.hasAccount(msgObj)
+      .then(async (hasAccount: any) => {
+        if (hasAccount) {
+          navigation.replace("HomeScreen");
+          // _accountService.getPlayerID(xrpaddress)
+          // .then(async (playerID: any) => {
+          //   AsyncStorage.setItem('playerId', playerID.Player_ID)
+          //   .then(() => {
+          //     console.log("playerId: ", playerID)
+          //     navigation.replace("HomeScreen");
+          //   })
+          //   .catch((error) => {
+          //     console.error("Error occurred while setting player ID in AsyncStorage:", error);
+          //     showToast("An error occurred. Please try again later.", ToastMessageTypes.error);
+          //   });
+          // })
+          // .catch((error) => {
+          //   console.error("Error occurred while getting player ID:", error);
+          //   showToast("An error occurred. Please try again later.", ToastMessageTypes.error);
+          // });
+        } else {
+          showToast("Invalid Login!", ToastMessageTypes.error);
+        }
+      })
+      .catch((error) => {
+        console.error("Error occurred:", error);
+        showToast("An error occurred. Please try again later.", ToastMessageTypes.error);
+      });
+  });
 
   const handleLoginRequest = async () => {
-    if (seed !== '') {
-      try {
-        await xrplClient.connect();
-
-        const wallet = Wallet.fromSeed(seed, { algorithm: xrpl.ECDSA });
-        if (wallet) {
-          console.log("wallet", wallet);
-
-          const msgObj = {
-            public_Key: wallet.publicKey,
-            XRP_Address: wallet.address
-          };
-          console.log("Message Obj: ", msgObj)
-          var hasAccount = await _accountService.hasAccount(msgObj);
-
-          console.log("hasAccount", hasAccount);
-          navigation.navigate("HomeScreen")
-          if (hasAccount) {
-            showToast("Login Succesful", ToastMessageTypes.success);
-            saveCredentials(wallet.address, seed);
-            navigation.navigate("HomeScreen")
-          } else {
-            showToast("Invalid Login!", ToastMessageTypes.error);
-            setError("Invalid Login.");
-            console.log("Error", error);
-            showError()
-          }
-        }
-        else {
-          console.log("Error", wallet);
-          setError("Wallet does not exists");
-          showError();
-        }
-      } catch (error) {
-        console.log("Error", error);
-        setError("Invalid Login.");
-        showError();
-      }
-    } else {
-      setError("Please provide a key.");
-    }
+    Linking.openURL(
+      'https://oauth2.xumm.app/auth?client_id=91d06dfb-b478-45cb-8797-5c5ce786e915&redirect_uri=everquest://login&scope=token&response_type=token&response_mode=query'
+    );
   };
 
   return (
@@ -106,21 +96,16 @@ export default function Login({ title, navigation }) {
         <View>
           <Text style={styles.subText}>Login with your crypto wallet</Text>
         </View>
-
         <View style={styles.container}>
-          <TextInput style={styles.input}
-            //secureTextEntry={true}
-            underlineColorAndroid="transparent"
-            placeholder="Enter XRPL secret key"
-            placeholderTextColor={AppTheme.colors.mediumGrey}
-            autoCapitalize="none"
-            onChangeText={setSeed} />
+        <Image
+            style={styles.image}
+            source={require("../../../assets/images/logo.jpg")}
+          />   
         </View>
-
         <View style={styles.button}>
           <SCButtonWithoutArrow
             onTap={handleLoginRequest}
-            text="Login"
+            text="Login with Xaman"
             bgColor={AppTheme.colors.buttonGreen}
             textColor={AppTheme.colors.white}
           />
@@ -134,6 +119,11 @@ export default function Login({ title, navigation }) {
 const screen = Dimensions.get("window");
 
 const styles = StyleSheet.create({
+
+  image: {
+    width: 200,
+    height: 200,
+  },
   mainContainer: {
     alignItems: "center",
     height: screen.height,
@@ -157,6 +147,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 23,
     width: screenWidth * 0.85,
+    alignItems: "center"
   },
   input: {
     margin: 15,

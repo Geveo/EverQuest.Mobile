@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   BackHandler,
   Dimensions,
+  FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,6 +17,7 @@ import {} from "@fortawesome/free-solid-svg-icons";
 import AppTheme from "../../../helpers/theme";
 import PageTitle from "../../../components/page-title/page-title";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import AccountService from "../../../services/services-domain/account-service";
 const xrpl = require("xrpl");
 const {
   GameEngineApiParameters,
@@ -26,11 +28,16 @@ export default function WalletScreen({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [availableFunds, setAvailableFunds] = useState(0);
   const [xrpPriceInUSDOllars, setXrpPriceInUSDollars] = useState(0);
-
+  const [transactionHistory, setTransactionHistory] = useState([]);
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
   }
+  const transactions = [
+    { id: '1', date: '2024-03-13', amount: 50, type: 'Deposit', description: 'Test Leaugue 5 - 20 EVR game' },
+    { id: '2', date: '2024-03-12', amount: -20, type: 'Withdrawal', description: 'Test Leaugue 4 - 20 EVR game' },
+    // Add more transactions as needed
+  ];
 
   const getCredentials = async () => {
     try {
@@ -56,6 +63,14 @@ export default function WalletScreen({ navigation }) {
       console.error("Error fetching XRP price:", error);
       return null;
     }
+  }
+  async function getTransactionHistory(playerID){
+    var acountService = new AccountService();
+    var msgObj = {
+      Player_ID: playerID
+    }
+    var response = await acountService.getTransactionHistory(msgObj);
+    setTransactionHistory(response);
   }
 
   async function checkIssuedCurrencyBalance(account, currencyCode, issuer) {
@@ -110,7 +125,10 @@ export default function WalletScreen({ navigation }) {
         }
       };
       fetchData();
-    });
+      //ToDo: get player id
+      getTransactionHistory("10002");
+    }
+    );
 
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -128,31 +146,55 @@ export default function WalletScreen({ navigation }) {
         backHandler.remove();
       }
     };
-  }, [navigation, availableFunds]);
+  }, [navigation]);
 
-  return (
-    <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
-      <PageTitle title="My Wallet" navigation={navigation} />
-
-      <View style={styles.container}>
-        <Text style={styles.headingText}>EverQuest Wallet </Text>
-        <Text style={styles.amountText}>{availableFunds} EVR</Text>
-        <Text style={styles.usdText}> {xrpPriceInUSDOllars*availableFunds} USD </Text>
+    const renderItem = ({ item }) => (
+      <View style={styles.transactionItem}>
+        <Text>{item.date}</Text>
+        <Text>{item.type}</Text>
+        <Text>{item.amount} EVR</Text>
       </View>
+    );
+  
+    return (
+      <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
+      <PageTitle title="My Wallet" navigation={navigation} />
+      <View style={styles.container}>
+        <Text style={styles.headingText}>EverQuest Wallet</Text>
+        <Text style={styles.amountText}>{availableFunds} EVR</Text>
+        <Text style={styles.usdText}>{xrpPriceInUSDOllars * availableFunds} USD</Text>
+        </View>
+        <View style={styles.transactionHistorycontainer}>
+        <Text style={styles.historyHeading}>Transaction History</Text>
+        <FlatList
+          data={transactions}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+        />
+        </View>
 
-      <EQBottomNavigationBar
-        navigation={navigation}
-        selectedTab={BottomNavigationButtons.Wallet}
-        onTapCallback={onBottomNavigationTapped}
-      />
-    </AuthorizedLayout>
-  );
-}
+        <EQBottomNavigationBar
+          navigation={navigation}
+          selectedTab={BottomNavigationButtons.Wallet}
+          onTapCallback={onBottomNavigationTapped}
+        />
+        </AuthorizedLayout>
+    );
+  };
 
 const screen = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
+    alighItems: "right",
+    padding: 40,
+    justifyContent: "space-between",
+    marginVertical: 20,
+    marginHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: AppTheme.colors.bottomNavGreen,
+  },
+  transactionHistorycontainer:{
     alighItems: "right",
     padding: 40,
     justifyContent: "space-between",
@@ -176,5 +218,18 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.darkGrey,
     marginTop: 20,
     fontWeight: "bold",
+  },
+  historyHeading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  transactionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    paddingVertical: 10,
   },
 });

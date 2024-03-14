@@ -359,6 +359,8 @@ export default function Tournament({ navigation, route }) {
                 destination={"AllRoundsPage"} 
                 navigation={navigation}
                 GameID={game.GameID}
+                VQGameID={game.VQGameID}
+                VQPlayerID={game.VQPlayerID}
               />
             ))}
         </ScrollView>

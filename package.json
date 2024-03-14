@@ -52,8 +52,13 @@
     "react-native-safe-area-context": "^4.7.4",
     "react-native-screens": "~3.27.0",
     "react-native-svg": "13.14.0",
+    "react-native-url-polyfill": "^2.0.0",
     "typescript": "^5.2.2",
-    "xrpl": "^3.0.0"
+    "xrpl": "^3.0.0",
+    "xumm": "1.7.7",
+    "xumm-sdk": "1.11.1",
+    "jwt-decode": "4.0.0",
+    "base-64": "1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",

@@ -12,7 +12,7 @@ export default class AccountService {
     }
 
     async hasAccount(message) {
-        console.log("message", message);
+        console.log("xrpaddress", message);
         const messageObj = {
             service: requestConstants.RequestTypes.ACCOUNTS,
             action: requestConstants.AccountsRequestSubTypes.IS_ACCOUNT_EXIST,
@@ -21,6 +21,45 @@ export default class AccountService {
 
         var hasAccount = await this.submitToContract(messageObj);
         return hasAccount;
+    }
+
+    async getPlayerID(xrpaddress) {
+        console.log("Gettting player Id")
+        var message = {
+            XRP_Address: xrpaddress,
+        };
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.GET_PLAYER_ID,
+            data: message
+        };
+        var response = await this.submitToContract(messageObj);
+        console.log("PlayerID response: ", response)
+        return response;
+    }
+
+    async addFundsTransactions(message){
+        console.log("Creating a transaction record:", message);
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.ADD_FUNDS_TRANSACTIONS,
+            data: message
+        };
+
+        var response = await this.submitToContract(messageObj);
+        return response;
+    }
+
+    async getTransactionHistory(message){
+        console.log("Creating a transaction record:", message);
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.GET_TRANSACTION_HISTORY,
+            data: message
+        };
+
+        var response = await this.submitToContract(messageObj);
+        return response;
     }
 
     /*
