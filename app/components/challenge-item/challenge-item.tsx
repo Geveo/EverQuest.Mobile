@@ -9,9 +9,19 @@ import {
 import AppTheme from "../../helpers/theme";
 import SCButtonWithoutArrow from "../button-without-arrow/button-without-arrow";
 
-export default function ChallengeItem({ navigation, amount, playerCount,minimumPlayerCount, callParentMethod}) {
+// export default function ChallengeItem({ navigation, amount, playerCount,minimumPlayerCount, callParentMethod}) {
+export default function ChallengeItem({ navigation, amount, shuffleTime ,minimumPlayerCount, pathOnPress, gameName, gameId, gameType}) {
 
-  
+  const handlePress = () => {
+    if (pathOnPress) {
+      navigation.navigate(pathOnPress, { gameName, gameId, gameType });
+    } else {
+      // Handle the case when pathOnPress is undefined (i.e., shuffleTimePassed)
+      // For example, show a popup indicating that the shuffle time has passed
+      // You can implement this part according to your requirements
+      console.log("Shuffle time has passed, navigation disabled");
+    }
+  };
 
   return (
     <View style={styles.mainContainer}>
@@ -22,7 +32,7 @@ export default function ChallengeItem({ navigation, amount, playerCount,minimumP
         </View>
         <View style={styles.textComponents}>
           <Text style={styles.textHeading}>{amount}</Text>
-          <Text style={styles.playerCount}>{playerCount} Players Only</Text>
+          <Text style={styles.playerCount}>{shuffleTime}</Text>
           <View style={styles.subLogo}>
             <Image style={styles.logoCheck}
               source={require("../../assets/images/Check-icon-green.png")}
@@ -31,11 +41,10 @@ export default function ChallengeItem({ navigation, amount, playerCount,minimumP
           </View>
 
           <View style={styles.button}>
-        <SCButtonWithoutArrow
-          text="Join Game"
-        //  onTap={() => navigation.navigate(pathOnPress)}
-          onTap={ callParentMethod } // Call the function passed from the parent}
-        />
+          <SCButtonWithoutArrow
+            text="Join Game"
+            onTap={handlePress}
+          />
       </View>
           
         </View>

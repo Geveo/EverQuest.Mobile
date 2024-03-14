@@ -79,11 +79,17 @@ export default function AllJoinedGamespage({ navigation }) {
 
       <ScrollView style={styles.resultContainer}>
           {joinedGamesPreviously
+            //.filter((game) => game.RoundName === "Round 1")
             .map((game, index) => (
               <JoinedGame
-                key={index} // Ensure each child component has a unique key
-                gameName={game.GameName} // Pass the game name
-                LeagueName={game.LeagueName} // Pass the league name
+                key={index} 
+                gameName={game.GameName} 
+                LeagueName={game.LeagueName} 
+                destination={"AllRoundsPage"} 
+                navigation={navigation}
+                GameID={game.GameID} 
+                VQGameID={game.VQGameID}
+                VQPlayerID={game.VQPlayerID}
               />
             ))}
         </ScrollView>

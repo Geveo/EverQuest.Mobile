@@ -39,6 +39,9 @@ export default function Tournament({ navigation, route }) {
   const [fromAddress, setFromAddress] = useState("");
   const [activeTab, setActiveTab] = useState("All Games");
 
+  const [shuffleTime, setShuffleTime] = useState(null);
+  const [shuffleTimePassed, setShuffleTimePassed] = useState(false);
+
   const toAddress = "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y";
   const gameValue = "1"; // Amount of EVR to send
 
@@ -104,17 +107,7 @@ export default function Tournament({ navigation, route }) {
   //TODO: Change the game amount in the server
   async function sendXRP(fromAddress, secret, toAddress, gameValue, amount, gameId, gameAmount) {
     try {
-      // const responseDBCall = await axios.post(
-      //   `${GameEngineApiParameters.URL}/api/games/updateFundsForUser`,
-      //   {
-      //     gameId: 100,
-      //   }
-      // );
 
-      // console.log("Response: ", responseDBCall.status);
-
-      //if (responseDBCall.data) {
-        // Connect to the XRP Ledger
         const client = new xrpl.Client("wss://xahau-test.net/");
         await client.connect();
 
@@ -213,7 +206,15 @@ export default function Tournament({ navigation, route }) {
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getLeagueGamesByLeagueId?leagueId=${gameId}`
       );
-      console.log("Joioned Games: ", response.data.Games);
+      const shuffleTime = new Date(response.data.Games[0].ShuffleTime);
+      const shuffleTimeValue = new Date(
+        response.data.Games[0].ShuffleTime
+      );
+      setShuffleTime(shuffleTimeValue);
+      const currentTime = new Date();
+      if (currentTime > shuffleTime) {
+        setShuffleTimePassed(true);
+      }
       setChallenges(response.data.Games);
     } catch (error) {
       console.error("Error fetching games:", error);
@@ -229,7 +230,6 @@ export default function Tournament({ navigation, route }) {
       console.log("After getting joinedGames", response.data);
       if (response.data) {
         const { Feeds } = response.data;
-        console.log("Feeds:", Feeds);
         setJoinedGamesPreviously(Feeds);
       } else {
         console.log("RoundMatches not found in response");
@@ -338,32 +338,27 @@ export default function Tournament({ navigation, route }) {
               key={challenge.GameId}
               navigation={navigation}
               amount={challenge.GameName} // Assuming GameName contains the amount
-              playerCount={12} // You may update these values as needed
-              minimumPlayerCount={6} // You may update these values as needed
-              callParentMethod={() =>
-                sendXRP(
-                  fromAddress,
-                  secret,
-                  toAddress,
-                  gameValue,
-                  challenge.GameName,
-                  challenge.GameId,
-                  challenge.GameAmount
-                )
-              }
-              //pathOnPress={"Challenge"} // Assuming this is the path onPress action
+              shuffleTime={shuffleTime ? shuffleTime.toLocaleString() : ""} 
+              minimumPlayerCount={6}
+              pathOnPress={shuffleTimePassed ? undefined  : "Challenge"}
+              gameName={challenge.GameName}
+              gameId={challenge.GameId}
+              gameType={challenge.GameType}
             />
           ))}
         </ScrollView>
       ) : (
         <ScrollView style={styles.resultContainer}>
-          {joinedGamesPreviously
-            .filter(game => game.LeagueName.toLowerCase() === title.toLowerCase()) // Filter games based on title match
+          {joinedGamesPreviously && joinedGamesPreviously
+            .filter(game => game.LeagueName.toLowerCase() === title.toLowerCase())
             .map((game, index) => (
               <JoinedGame
-                key={index} // Ensure each child component has a unique key
-                gameName={game.GameName} // Pass the game name
-                LeagueName={game.LeagueName} // Pass the league name
+                key={index} 
+                gameName={game.GameName} 
+                LeagueName={game.LeagueName}
+                destination={"AllRoundsPage"} 
+                navigation={navigation}
+                GameID={game.GameID}
               />
             ))}
         </ScrollView>

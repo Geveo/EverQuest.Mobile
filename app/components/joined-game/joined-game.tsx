@@ -4,20 +4,21 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
 } from "react-native";
 import AppTheme from "../../helpers/theme";
 
-export default function JoinedGame({ gameName, LeagueName }) {
+export default function JoinedGame({ navigation, gameName, LeagueName, destination,GameID, VQGameID, VQPlayerID }) {
 
   return (
-    <View style={styles.gameContainer}>
+    <TouchableOpacity style={styles.gameContainer} onPress={() => navigation.navigate(destination, {gameName, LeagueName, GameID, VQGameID, VQPlayerID})}>
         <View style={styles.rightImageIcon}></View>
         <View style={ styles.inisdeContainer}>    
          <Text style={styles.mainText}>{ LeagueName }</Text>
          <Text style={styles.SubText}>{ gameName }</Text>
         </View>
         
-    </View>
+    </TouchableOpacity>
   );
 
 }

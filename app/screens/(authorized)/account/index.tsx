@@ -25,7 +25,6 @@ export default function Account({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
 
   const userName = "Test User";
-  const userEmail = "test@test.com";
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -88,7 +87,6 @@ export default function Account({ navigation }) {
           }}
         />
         <Text style={styles.userName}>{userName}</Text>
-        <Text style={styles.userEmail}>{userEmail}</Text>
       </View>
 
       <View style={styles.signOut}>

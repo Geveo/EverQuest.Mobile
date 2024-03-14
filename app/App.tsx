@@ -12,6 +12,7 @@ import Challenge from "./screens/(authorized)/challenge";
 import RoundDetails from "./screens/(authorized)/round-details";
 import Login from "./screens/(anonymous)/login";
 import AllJoinedGamespage from "./screens/(authorized)/joined-games";
+import AllRoundsPage from "./screens/(authorized)/all-rounds";
 
 const Stack = createStackNavigator();
 
@@ -92,6 +93,12 @@ export default function App() {
           name="AllJoinedGamespage"
           component={AllJoinedGamespage}
           options={{ title: "AllJoinedGamespage" }}
+        />
+
+        <Stack.Screen
+          name="AllRoundsPage"
+          component={AllRoundsPage}
+          options={{ title: "AllRoundsPage" }}
         />
         
       </Stack.Navigator>
