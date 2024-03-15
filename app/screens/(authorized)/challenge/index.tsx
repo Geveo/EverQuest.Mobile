@@ -45,6 +45,31 @@ export default function Challenge({ navigation, route }) {
   const [playerXrpAddress, setPlayerXrpAddress] = useState("");
   const [secret, setSecret] = useState("");
 
+  const countryImages = {
+    "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
+    "Australia": require("../../../assets/images/australia.png"),
+    "Ireland": require("../../../assets/images/Ireland.png"),
+    "Argentina": require("../../../assets/images/Argentina.png"),
+    "England": require("../../../assets/images/england.png"),
+    "France": require("../../../assets/images/France.png"),
+    "Afganistan": require("../../../assets/images/afganistan.png"),
+    "Bangladesh": require("../../../assets/images/bangladesh.png"),
+    "India": require("../../../assets/images/india.png"),
+    "Netherlands": require("../../../assets/images/netherlands.png"),
+    "New-Zealand": require("../../../assets/images/new_zealand.png"),
+    "New Zealand": require("../../../assets/images/new_zealand.png"),
+    "Pakistan": require("../../../assets/images/Pakistan.png"),
+    "South Africa": require("../../../assets/images/south_africa.png"),
+    "WestIndies": require("../../../assets/images/australia.png"),
+    "Zimbabwe": require("../../../assets/images/australia.png"),
+    "Italy": require("../../../assets/images/Zimbabwe.png"),
+    "Japan": require("../../../assets/images/Japan.png"),
+    "Belgium": require("../../../assets/images/Belgium.png"),
+    "Brazil": require("../../../assets/images/Brazil.png"),
+    "Portugal": require("../../../assets/images/Portugal.png"),
+    "Spain": require("../../../assets/images/Spain.png"),
+  };
+
   const { gameType, gameName, gameId } = route.params;
 
   const gameAmount = String(gameType.replace('$', '')); 
@@ -271,7 +296,7 @@ export default function Challenge({ navigation, route }) {
     const handleSubmitButtonPress = () => {
       console.log("Submit button pressed");
       submitUserResponse();
-      makePayment();
+      //makePayment();
       //sendXRP(fromAddress, secret, toAddress, gameValue);
       console.log("GameParticipantID", gameParticipantID);
     };
@@ -362,7 +387,7 @@ export default function Challenge({ navigation, route }) {
                   >
                     <CountryComponent
                       countryName={match.TeamNameLeft}
-                      countryImage={require(`../../../assets/images/DummyCountry.png`)}
+                      countryImage={!countryImages[match.TeamNameLeft]? require("../../../assets/images/DummyCountry.png") : countryImages[match.TeamNameLeft]}
                       active={
                         selectedCountry === match.TeamNameLeft ? true : false
                       }
@@ -380,7 +405,7 @@ export default function Challenge({ navigation, route }) {
                   >
                     <CountryComponent
                       countryName={match.TeamNameRight}
-                      countryImage={require(`../../../assets/images/DummyCountry.png`)}
+                      countryImage={!countryImages[match.TeamNameRight]? require("../../../assets/images/DummyCountry.png") : countryImages[match.TeamNameRight]}
                       active={
                         selectedCountry === match.TeamNameRight ? true : false
                       }

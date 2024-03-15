@@ -13,10 +13,17 @@ import AppTheme from '../../helpers/theme';
     { label: 'Round 6', value: '6' },
     { label: 'Round 7', value: '7' },
     { label: 'Round 8', value: '8' },
+    { label: 'Round 9', value: '9' },
+    { label: 'Round 10', value: '10' },
+    { label: 'Round 11', value: '11' },
+    { label: 'Round 12', value: '12' },
   ];
 
-  const DropdownComponent = () => {
-    const [value, setValue] = useState(null);
+  const DropdownComponent = ({ maxRounds, selectedRound, onRoundChange }) => {
+    const [value, setValue] = useState(selectedRound);
+
+    const filteredData = data.filter(item => parseInt(item.value) <= maxRounds);
+    
 
     const renderItem = item => {
       return (
@@ -36,24 +43,25 @@ import AppTheme from '../../helpers/theme';
 
     return (
       <Dropdown
-        style={styles.dropdown}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
-        data={data}
-        search
-        maxHeight={300}
-        labelField="label"
-        valueField="value"
-        placeholder="Select Round..."
-        searchPlaceholder="Search..."
-        value={value}
-        onChange={item => {
-          setValue(item.value);
-        }}
-        renderItem={renderItem}
-      />
+      style={styles.dropdown}
+      placeholderStyle={styles.placeholderStyle}
+      selectedTextStyle={styles.selectedTextStyle}
+      inputSearchStyle={styles.inputSearchStyle}
+      iconStyle={styles.iconStyle}
+      data={filteredData} // Use filteredData instead of the original data array
+      search
+      maxHeight={300}
+      labelField="label"
+      valueField="value"
+      placeholder="Select Round..."
+      searchPlaceholder="Search..."
+      value={value}
+      onChange={item => {
+        setValue(item.value);
+        onRoundChange(item.value);
+      }}
+      renderItem={renderItem}
+    />
     );
   };
 

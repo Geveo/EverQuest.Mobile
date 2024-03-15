@@ -11,12 +11,46 @@ import PageTitle from "../../../components/page-title/page-title";
 import DropdownComponent from "../../../components/drop-down/drop-down";
 import ResultCountryComponent from "../../../components/result-country-component/result-country-component";
 import { DataTable } from 'react-native-paper';
+import axios from "axios";
+const {
+  GameEngineApiParameters,
+} = require(".../../../app/constants/constants");
+
+
 
 const screenWidth = Dimensions.get("window").width;
 
-export default function RoundDetails({ navigation }) {
+export default function RoundDetails({ navigation, route }) {
+  const { VQGameID, maxRoundNumber, roundNumber } = route.params;
 
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [roundDetails, setRoundDetails] = useState([]);
+  const [detailsRoundNumber, setDetailsRoundNumber] = useState(roundNumber);
+
+  const countryImages = {
+    "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
+    "Australia": require("../../../assets/images/australia.png"),
+    "Ireland": require("../../../assets/images/Ireland.png"),
+    "Argentina": require("../../../assets/images/Argentina.png"),
+    "England": require("../../../assets/images/england.png"),
+    "France": require("../../../assets/images/France.png"),
+    "Afganistan": require("../../../assets/images/afganistan.png"),
+    "Bangladesh": require("../../../assets/images/bangladesh.png"),
+    "India": require("../../../assets/images/india.png"),
+    "Netherlands": require("../../../assets/images/netherlands.png"),
+    "New-Zealand": require("../../../assets/images/new_zealand.png"),
+    "New Zealand": require("../../../assets/images/new_zealand.png"),
+    "Pakistan": require("../../../assets/images/Pakistan.png"),
+    "South Africa": require("../../../assets/images/south_africa.png"),
+    "WestIndies": require("../../../assets/images/australia.png"),
+    "Zimbabwe": require("../../../assets/images/australia.png"),
+    "Italy": require("../../../assets/images/Zimbabwe.png"),
+    "Japan": require("../../../assets/images/Japan.png"),
+    "Belgium": require("../../../assets/images/Belgium.png"),
+    "Brazil": require("../../../assets/images/Brazil.png"),
+    "Portugal": require("../../../assets/images/Portugal.png"),
+    "Spain": require("../../../assets/images/Spain.png"),
+  };
   
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
@@ -42,17 +76,53 @@ export default function RoundDetails({ navigation }) {
     };
   }, [navigation]);
 
+  const getAllParticipants = async () => {
+    try {
+      const response = await axios.get(
+        `${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=${VQGameID}&userID=3472`
+      );
+
+      const filteredRoundDetails = response.data.GameHistory.
+        filter((item) => item.roundnumber === detailsRoundNumber);
+
+      console.log(detailsRoundNumber);
+      
+      setRoundDetails(filteredRoundDetails);
+      console.log(filteredRoundDetails);
+      
+    } catch (error) {
+      console.log("Error fetching data:", error);
+    }
+  };
+  
+  useEffect(() => {
+    getAllParticipants();
+  }, [detailsRoundNumber]);
+
+  const handleRoundChange = (selectedRound) => {
+    setDetailsRoundNumber(parseInt(selectedRound)); // Update the selected round
+  };
+
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <PageTitle title="Round Details" navigation={navigation}/>
 
-      <DropdownComponent/>
+      <DropdownComponent maxRounds={maxRoundNumber} selectedRound={detailsRoundNumber} onRoundChange={handleRoundChange} />
       <View style= {styles.tableContainer}>
         <Text style= {styles.tableFont}>Selection</Text>
         <Text style= {styles.tableFont}>Name</Text>
         <Text style= {styles.tableFont}>Status</Text>
       </View>
       <ScrollView style= {styles.scrollviewContainer} >
+
+      {roundDetails.map((item, index) =>
+        <ResultCountryComponent
+        key={index}
+        userName={item.username}
+        countryImage={!item.teamname? require("../../../assets/images/DummyCountry.png") : countryImages[item.teamname] }
+        success={item.IsVQWin}
+      />
+      ) }
         
       {/* <ResultCountryComponent
         countryName={"Sri Lanka"}

@@ -6,5 +6,5 @@
 // LOCAL Settings
 export default class AppSettings {
    //static websocketUrl = "ws://localhost:8081";
-   static websocketUrl = "wss://dapps-dev9.geveo.com:26211";
+   static websocketUrl = "wss://dapps-dev9.geveo.com:26212";
 }

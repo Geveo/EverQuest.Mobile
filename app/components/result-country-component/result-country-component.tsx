@@ -13,7 +13,7 @@ import AppTheme from "../../helpers/theme";
 const screenWidth = Dimensions.get("window").width;
 
 export default function ResultCountryComponent({
-  countryName,
+  userName,
   countryImage,
   success,
 }) {
@@ -23,6 +23,7 @@ export default function ResultCountryComponent({
     <View style={styles.mainContainer}>
       <View style={styles.countryImage}>
         <Image
+          style={{ width: 40, height: 40 }}
           resizeMethod="resize"
           resizeMode="contain"
           source={countryImage}
@@ -32,7 +33,7 @@ export default function ResultCountryComponent({
         />
       </View>
       <View>
-        <Text style={styles.countryName}>{countryName}</Text>
+        <Text style={styles.countryName}>{userName}</Text>
       </View>
       <View style={[styles.status, !success && styles.failedStatus]}>
         <View style={[styles.chipIcon, !success && styles.failedChipIcon ]}></View>
@@ -59,8 +60,8 @@ const styles = StyleSheet.create({
     borderColor: AppTheme.colors.tabGrey,
   },
   countryImage: {
-    borderRadius: 30,
-    marginRight: 30,
+    borderRadius: 35,
+    marginRight: 35,
   },
   countryName: {
     color: AppTheme.colors.black,

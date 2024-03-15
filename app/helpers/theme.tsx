@@ -32,6 +32,7 @@ let AppTheme = {
     descriptionTextSmall: "#535559",
     greySubText: "#475467",
     greybackground: "#FAFAFA",
+    lightGrey: "#AFAFAF",
   },
   spacings: {
     lineSpace: 10, // example

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  BackHandler,
   Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   ScrollView,
+  Image,
 } from "react-native";
 import EQBottomNavigationBar, {
   BottomNavigationButtons,
@@ -17,8 +17,8 @@ import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import AppTheme from "../../../helpers/theme";
 import PageTitle from "../../../components/page-title/page-title";
 import CountryComponent from "../../../components/country-component/country-component";
-import SCButtonWithoutArrow from "../../../components/button-without-arrow/button-without-arrow";
 import axios from "axios";
+import SCButton from "../../../components/button/button";
 const {
   GameEngineApiParameters,
 } = require(".../../../app/constants/constants");
@@ -48,9 +48,32 @@ export default function AllRoundsPage({ navigation, route }) {
   const [shuffleTimePassed, setShuffleTimePassed] = useState(false);
   const [shuffleTime, setShuffleTime] = useState(null);
 
-  // const [gameIdVQ, setGameIdVQ] = useState(0);
-  // const [playerIdVQ, setPlayerIdVQ] = useState(0);
+  const [hasWonVQGame, setHasWonVQGame] = useState(false);
 
+  const countryImages = {
+    "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
+    Australia: require("../../../assets/images/australia.png"),
+    Ireland: require("../../../assets/images/Ireland.png"),
+    Argentina: require("../../../assets/images/Argentina.png"),
+    England: require("../../../assets/images/england.png"),
+    France: require("../../../assets/images/France.png"),
+    Afganistan: require("../../../assets/images/afganistan.png"),
+    Bangladesh: require("../../../assets/images/bangladesh.png"),
+    India: require("../../../assets/images/india.png"),
+    Netherlands: require("../../../assets/images/netherlands.png"),
+    "New-Zealand": require("../../../assets/images/new_zealand.png"),
+    "New Zealand": require("../../../assets/images/new_zealand.png"),
+    Pakistan: require("../../../assets/images/Pakistan.png"),
+    "South Africa": require("../../../assets/images/south_africa.png"),
+    WestIndies: require("../../../assets/images/australia.png"),
+    Zimbabwe: require("../../../assets/images/australia.png"),
+    Italy: require("../../../assets/images/Zimbabwe.png"),
+    Japan: require("../../../assets/images/Japan.png"),
+    Belgium: require("../../../assets/images/Belgium.png"),
+    Brazil: require("../../../assets/images/Brazil.png"),
+    Portugal: require("../../../assets/images/Portugal.png"),
+    Spain: require("../../../assets/images/Spain.png"),
+  };
 
   const handleTabSelection = (tabName) => {
     setActiveTab(tabName);
@@ -94,7 +117,7 @@ export default function AllRoundsPage({ navigation, route }) {
         `${GameEngineApiParameters.URL}/api/games/getTippingsByUser?vqGameID=${VQGameID}&vqPlayerID=${VQPlayerID}&userID=3472`
       );
       setRoundMatches(response.data.AvailableTippings);
-      console.log("Response from getAllgames:", response.data.AvailableTippings);
+      //console.log("Response from getAllgames:", response.data.AvailableTippings);
 
       response.data.AvailableTippings.forEach((tipping) => {
         if (tipping.RoundNumber > maxRoundNumber) {
@@ -137,6 +160,8 @@ export default function AllRoundsPage({ navigation, route }) {
     }
   };
 
+  {
+    /*
   const getVQRelatedData = async () => {
     try {
       const response = await axios.get(
@@ -176,55 +201,113 @@ export default function AllRoundsPage({ navigation, route }) {
       console.log("Error fetching VQ related data:", error);
     }
   };
+*/
+  }
 
-  // const confirmTippings = async (matchTeamId) => {
-  //   try {
-  //     const response = await axios.post(
-  //       `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${gameIdVQ}&matchTeamId=${matchTeamId}&vqPlayerID=${playerIdVQ}&userID=3472`);
-  //     console.log("Response from confirmTippings:", response);
-  //   } catch (error) {
-  //     console.log("Error confirming tippings:", error);
-  //   }
-  // };
+  const getGameResults = async () => {
+    try {
+      const response = await axios.get(
+        `${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=${VQGameID}&userID=3472`
+      );
 
-  // const handleSubmitButtonPress = async () => {
-  //   if (selectedCountry === "") {
-  //     console.log("Please select a country");
-  //     return;
-  //   }
-  //   console.log("Selected country:", selectedCountry);
-  //   console.log("Selected country ID:", selectedCountryId);
+      const relevantGame = response.data.GameHistory.filter(
+        (game) =>
+          game.vqgameid === VQGameID &&
+          game.roundnumber === roundNumber &&
+          game.userid === 3472
+      );
+      console.log("Relevant game:", relevantGame);
 
-  //   await confirmTippings(selectedCountryId);
-  //   setSucessful(true);
-  // };
+      if (relevantGame.length === 0) {
+        setIsFinished(false); // Set to false when the array is empty
+      } else {
+        if (relevantGame[0].IsVQWin === true) {
+          setIsFinished(true);
+          setHasWonRound(true);
+          console.log("IsFinished:", isFinished.toString());
+        } else if (relevantGame[0].IsVQWin === false) {
+          setIsFinished(true);
+          setHasWonRound(false);
+          console.log("IsFinished:", isFinished.toString());
+        }
+      }
+      const userWins = response.data.GameHistory.filter(
+        (game) =>
+          game.roundnumber === maxRoundNumber &&
+          game.IsVQWin === true &&
+          game.userid === 3472
+      );
+      if (userWins.length > 0) {
+        setHasWonVQGame(true);
+      }
+
+      const userWinsBeforeEnds = response.data.GameHistory.filter(
+        (game) =>
+          game.IsVQWin === true &&
+          game.roundnumber === roundNumber &&
+          game.roundnumber < maxRoundNumber
+      );
+      console.log("User wins before ends:", userWinsBeforeEnds);
+      if (userWinsBeforeEnds.length === 1) {
+        setHasWonVQGame(true);
+      }
+    else{
+      setHasWonVQGame(false);
+    }
+      //console.log("Response from getGameResults:", response.data);
+    } catch (error) {
+      console.log("Error fetching game results:", error);
+    }
+  };
+
+  const confirmTippings = async (matchTeamId) => {
+    try {
+      const response = await axios.post(
+        `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${VQGameID}&matchTeamId=${matchTeamId}&vqPlayerID=${VQPlayerID}&userID=3472`
+      );
+      console.log("Response from confirmTippings:", response);
+    } catch (error) {
+      console.log("Error confirming tippings:", error);
+    }
+  };
+
+  const handleSubmitButtonPress = async () => {
+    if (selectedCountry === "") {
+      console.log("Please select a country");
+      return;
+    }
+    console.log("Selected country:", selectedCountry);
+    console.log("Selected country ID:", selectedCountryId);
+
+    await confirmTippings(selectedCountryId);
+    setSucessful(true);
+  };
 
   useEffect(() => {
-    getVQRelatedData();
+    //getVQRelatedData();
+    getGameResults();
     getShuffleTime();
     getAllgames();
   }, [roundNumber]);
 
-  useEffect(() => {
-    
-  }, []);
+  // useEffect(() => {
+  //   getGameResults();
+  //   getShuffleTime();
+  //   getAllgames();
+  // }, []);
 
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <PageTitle title={LeagueName} navigation={navigation} />
 
       <Text style={styles.heading}> {gameName} </Text>
-      <Text style={styles.heading}> {VQGameID} </Text>
-      <Text style={styles.heading}> {VQPlayerID} </Text>
 
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
           <TouchableOpacity onPress={leftbuttonclick}>
             {leftFlag ? <FontAwesomeIcon icon={faArrowLeft} size={25} /> : null}
           </TouchableOpacity>
-          <Text style={styles.roundName}>
-            Round {roundNumber}
-          </Text>
+          <Text style={styles.roundName}>Round {roundNumber}</Text>
           <TouchableOpacity onPress={rightbuttonclick}>
             {rightFlag ? (
               <FontAwesomeIcon icon={faArrowRight} size={25} />
@@ -285,14 +368,15 @@ export default function AllRoundsPage({ navigation, route }) {
                     </>
                   ) : (
                     <>
-                    {shuffleTime && (
-                <Text
-                  style={styles.textResult}
-                >Voting will be close in: {`${shuffleTime.toLocaleDateString()} ${shuffleTime.toLocaleTimeString(
-                  [],
-                  { hour: "2-digit", minute: "2-digit" }
-                )}`}</Text>
-              )}
+                      {shuffleTime && (
+                        <Text style={styles.textResult}>
+                          Voting will be close in:{" "}
+                          {`${shuffleTime.toLocaleDateString()} ${shuffleTime.toLocaleTimeString(
+                            [],
+                            { hour: "2-digit", minute: "2-digit" }
+                          )}`}
+                        </Text>
+                      )}
                       <TouchableOpacity
                         style={styles.submitButtonContainer}
                         onPress={() => {
@@ -322,7 +406,11 @@ export default function AllRoundsPage({ navigation, route }) {
                         >
                           <CountryComponent
                             countryName={match.TeamNameLeft}
-                            countryImage={require(`../../../assets/images/DummyCountry.png`)}
+                            countryImage={
+                              !countryImages[match.TeamNameLeft]
+                                ? require("../../../assets/images/DummyCountry.png")
+                                : countryImages[match.TeamNameLeft]
+                            }
                             active={
                               selectedCountry === match.TeamNameLeft
                                 ? true
@@ -342,7 +430,11 @@ export default function AllRoundsPage({ navigation, route }) {
                         >
                           <CountryComponent
                             countryName={match.TeamNameRight}
-                            countryImage={require(`../../../assets/images/DummyCountry.png`)}
+                            countryImage={
+                              !countryImages[match.TeamNameRight]
+                                ? require("../../../assets/images/DummyCountry.png")
+                                : countryImages[match.TeamNameRight]
+                            }
                             active={
                               selectedCountry === match.TeamNameRight
                                 ? true
@@ -362,21 +454,68 @@ export default function AllRoundsPage({ navigation, route }) {
                 <>
                   {hasWonRound ? (
                     <>
-                      <Text style={styles.resultGreet}>
-                        Congratulations !!!
-                      </Text>
-                      <Text style={styles.textResult}>
-                        You have won Round {roundNumber}
-                      </Text>
+                      {hasWonVQGame ? (
+                        <>
+                          <Text style={styles.GameWinningText}>
+                            Congratulations !!!
+                          </Text>
+                          <View>
+                            <Image
+                              source={require("../../../assets/images/Crown.png")} // Replace "your_image.png" with the actual image file name
+                              style={styles.imageStyle}
+                            />
+                            <Text style={styles.GameWinningResultText}>You are the Winner</Text>
+                            <Text style={styles.priceText}>
+                              Total Prize: 1000 EVR
+                            </Text>
+                            <TouchableOpacity
+                              onPress={() => {
+                                navigation.navigate("RoundDetails", {
+                                  VQGameID,
+                                  maxRoundNumber,
+                                  roundNumber,
+                                });
+                              }}
+                            >
+                            <Text style={styles.detailsText}>
+                              Round details
+                            </Text>
+                            </TouchableOpacity>
+                            
+                          </View>
+                        </>
+                      ) : (
+                        <>
+                          <Text style={styles.resultGreet}>
+                            Congratulations !!!
+                          </Text>
+                          <Text style={styles.textResult}>You have won</Text>
+                          <Text style={styles.roundNumber}>
+                            Round {roundNumber}
+                          </Text>
 
-                      <SCButtonWithoutArrow text="Round 2" />
-                      <TouchableOpacity
-                        onPress={() => {
-                          navigation.navigate("RoundDetails");
-                        }}
-                      >
-                        <Text style={styles.detailsText}> Round Details </Text>
-                      </TouchableOpacity>
+                          {/* <SCButtonWithoutArrow text={`Round ${roundNumber}`} /> */}
+                          <View
+                            style={{
+                              marginTop: 80,
+                              width: "100%",
+                              height: 75,
+                            }}
+                          >
+                            <SCButton
+                              text="Round Details"
+                              showRightArrow={true}
+                              onTap={() =>
+                                navigation.navigate("RoundDetails", {
+                                  VQGameID,
+                                  maxRoundNumber,
+                                  roundNumber,
+                                })
+                              }
+                            />
+                          </View>
+                        </>
+                      )}
                     </>
                   ) : (
                     <>
@@ -389,7 +528,11 @@ export default function AllRoundsPage({ navigation, route }) {
                       </Text>
                       <TouchableOpacity
                         onPress={() => {
-                          navigation.navigate("RoundDetails");
+                          navigation.navigate("RoundDetails", {
+                            VQGameID,
+                            maxRoundNumber,
+                            roundNumber,
+                          });
                         }}
                       >
                         <Text style={styles.detailsText}> Round Details </Text>
@@ -491,13 +634,19 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   resultGreet: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "600",
     alignSelf: "center",
     color: AppTheme.colors.splashGreen,
   },
+  roundNumber: {
+    fontSize: 25,
+    fontWeight: "600",
+    alignSelf: "center",
+    color: AppTheme.colors.black,
+  },
   resultWrong: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "600",
     alignSelf: "center",
     color: AppTheme.colors.red,
@@ -505,7 +654,7 @@ const styles = StyleSheet.create({
   },
   textResult: {
     marginVertical: 20,
-    fontSize: 16,
+    fontSize: 20,
     alignSelf: "center",
     color: AppTheme.colors.darkGrey,
   },
@@ -516,10 +665,10 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.darkGrey,
   },
   detailsText: {
-    fontSize: 16,
+    fontSize: 20,
     alignSelf: "center",
     color: AppTheme.colors.textGrey,
-    marginTop: 60,
+    marginTop: 30,
     fontWeight: "800",
     borderBottomColor: AppTheme.colors.textGrey,
     borderBottomWidth: 1,
@@ -549,5 +698,30 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     width: "80%",
     alignSelf: "center",
+  },
+  imageStyle: {
+    marginVertical: 40,
+    width: 200,
+    height: 200,
+    alignSelf: "center",
+  },
+  GameWinningText: {
+    fontSize: 40,
+    fontWeight: "600",
+    alignSelf: "center",
+    color: AppTheme.colors.buttonGreen,
+  },
+  GameWinningResultText: {
+    fontSize: 25,
+    fontWeight: "500",
+    alignSelf: "center",
+    color: AppTheme.colors.black,
+  },
+  priceText: {
+    marginTop: 25,
+    fontSize: 30,
+    fontWeight: "600",
+    alignSelf: "center",
+    color: AppTheme.colors.lightGrey,
   },
 });
