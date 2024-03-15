@@ -32,6 +32,7 @@ const saveCredentials = async (xrpaddress, token) => {
 
 export default function Login({ title, navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [playerId, setPlayerId] = useState("");
   const toast = useRef(null);
   if (!AccountService.instance) {
     AccountService.instance = new AccountService();
@@ -44,8 +45,6 @@ export default function Login({ title, navigation }) {
     let jwtDecoded = jwtDecode<JwtPayload>(token);
     let xrpaddress = jwtDecoded.sub
     saveCredentials(xrpaddress, token)
-    await AsyncStorage.setItem('XRP_Address', xrpaddress);
-    await AsyncStorage.setItem('token', token);
 
     const msgObj = {
       XRP_Address: xrpaddress
@@ -54,22 +53,14 @@ export default function Login({ title, navigation }) {
       .then(async (hasAccount: any) => {
         if (hasAccount) {
           navigation.replace("HomeScreen");
-          // _accountService.getPlayerID(xrpaddress)
-          // .then(async (playerID: any) => {
-          //   AsyncStorage.setItem('playerId', playerID.Player_ID)
-          //   .then(() => {
-          //     console.log("playerId: ", playerID)
-          //     navigation.replace("HomeScreen");
-          //   })
-          //   .catch((error) => {
-          //     console.error("Error occurred while setting player ID in AsyncStorage:", error);
-          //     showToast("An error occurred. Please try again later.", ToastMessageTypes.error);
-          //   });
-          // })
-          // .catch((error) => {
-          //   console.error("Error occurred while getting player ID:", error);
-          //   showToast("An error occurred. Please try again later.", ToastMessageTypes.error);
-          // });
+          _accountService.getPlayerID(xrpaddress)
+          .then(async (playerID: string) => {
+            await AsyncStorage.setItem('playerId', playerID.toString());
+          })
+          .catch((error) => {
+            console.error("Error occurred while getting player ID:", error);
+            showToast("An error occurred. Please try again later.", ToastMessageTypes.error);
+          });
         } else {
           showToast("Invalid Login!", ToastMessageTypes.error);
         }

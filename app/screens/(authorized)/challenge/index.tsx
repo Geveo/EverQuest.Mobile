@@ -21,8 +21,10 @@ import SCButtonWithoutArrow from "../../../components/button-without-arrow/butto
 import axios from "axios";
 import { set } from "date-fns";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import XummApiService from "../../../services/xumm-api-service";
 const {
   GameEngineApiParameters,
+  TransactionConstants
 } = require(".../../../app/constants/constants");
 const  xrpl = require("xrpl");
 
@@ -40,6 +42,7 @@ export default function Challenge({ navigation, route }) {
   const [sucessful, setSucessful] = useState(false);
   const [hasWonRound, setHasWonRound] = useState(false);
   const [fromAddress, setFromAddress] = useState("");
+  const [playerXrpAddress, setPlayerXrpAddress] = useState("");
   const [secret, setSecret] = useState("");
 
   const { gameType, gameName, gameId } = route.params;
@@ -173,6 +176,7 @@ export default function Challenge({ navigation, route }) {
       const secret = await AsyncStorage.getItem("secret");
       console.log("Secret: ", secret);
       setFromAddress(XRP_Address);
+      setPlayerXrpAddress(XRP_Address);
       setSecret(secret);
       return { XRP_Address, secret };
     } catch (error) {
@@ -236,10 +240,39 @@ export default function Challenge({ navigation, route }) {
       }
     }
 
+  async function makePayment() {
+    const url = 'http://192.168.1.20:3000/createAndSellUriToken';
+
+    const data = {
+      sourceAccount: TransactionConstants.ADMIN_ADDRESS,
+      sourceSecret: TransactionConstants.ADMIN_SECRET,
+      destinationAccount: playerXrpAddress,
+      uri: "7465737420706C61796572203132333435363534356464767664373235",
+      amount: {
+        "currency": TransactionConstants.CURRENCY,
+        "issuer": TransactionConstants.ISSUER_ADDRESS,
+        "value": "1"
+      }
+    };
+    try {
+      const response = await axios.post(url, data);
+      console.log(response.data.result)
+
+      var uRITokenID = response.data.result;
+      var xummApiService = new XummApiService();
+      xummApiService.buyUriToken(playerXrpAddress, "1", uRITokenID);
+      return response.data.result; 
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+    }
+
     const handleSubmitButtonPress = () => {
       console.log("Submit button pressed");
       submitUserResponse();
-      sendXRP(fromAddress, secret, toAddress, gameValue);
+      makePayment();
+      //sendXRP(fromAddress, secret, toAddress, gameValue);
       console.log("GameParticipantID", gameParticipantID);
     };
 
@@ -547,3 +580,4 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
+

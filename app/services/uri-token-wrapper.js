@@ -1,6 +1,6 @@
 const { sign, derive, XrplDefinitions, binary } = require('xrpl-accountlib');
 const { XrplAccount, XrplApi, EvernodeConstants, Defaults } = require('evernode-js-client');
-const https = require('https');
+import axios from "axios";
 
 const XAHAU_WSS_URL = 'wss://xahau-test.net';
 const XAHAU_HTTP_URL = 'https://xahau-test.net';
@@ -33,56 +33,68 @@ async function getAccountInfo(account) {
   return await xrplApi.getAccountInfo(account);
 }
 
-function httpPost(url, body) {
-  return new Promise((resolve, reject) => {
-    // Convert the request body object to a string
-    const data = JSON.stringify(body);
-
-    // Parse the URL
-    const urlObj = new URL(url);
-
-    // Define the options for the request
-    const options = {
-      hostname: urlObj.hostname,
-      port: urlObj.port,
-      path: urlObj.pathname,
-      method: 'POST',
+async function httpPost(url, body) {
+  try {
+    const response = await axios.post(url, body, {
       headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': data.length
+        'Content-Type': 'application/json'
       }
-    };
-
-    // Create the request
-    const req = https.request(options, (res) => {
-      let response = '';
-
-      // Collect response data
-      res.on('data', (chunk) => {
-        response += chunk;
-      });
-
-      // Resolve the promise on end
-      res.on('end', () => {
-        try {
-          // Attempt to parse JSON response
-          resolve(JSON.parse(response));
-        } catch (e) {
-          reject(e);
-        }
-      });
     });
-
-    // Reject the promise on request error
-    req.on('error', (error) => {
-      reject(error);
-    });
-
-    // Write the request body and end the request
-    req.write(data);
-    req.end();
-  });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
+
+// function httpPost(url, body) {
+//   return new Promise((resolve, reject) => {
+//     // Convert the request body object to a string
+//     const data = JSON.stringify(body);
+
+//     // Parse the URL
+//     const urlObj = new URL(url);
+//     // Define the options for the request
+//     const options = {
+//       hostname: urlObj.hostname,
+//       port: urlObj.port,
+//       path: urlObj.pathname,
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Content-Length': data.length
+//       }
+//     };
+
+//     // Create the request
+//     const req = https.request(options, (res) => {
+//       let response = '';
+
+//       // Collect response data
+//       res.on('data', (chunk) => {
+//         response += chunk;
+//       });
+
+//       // Resolve the promise on end
+//       res.on('end', () => {
+//         try {
+//           // Attempt to parse JSON response
+//           resolve(JSON.parse(response));
+//         } catch (e) {
+//           reject(e);
+//         }
+//       });
+//     });
+
+//     // Reject the promise on request error
+//     req.on('error', (error) => {
+//       reject(error);
+//     });
+
+//     // Write the request body and end the request
+//     req.write(data);
+//     req.end();
+//   });
+// }
 
 async function getXahauDefinition() {
   const body = {
@@ -177,6 +189,7 @@ async function uriTokenBurn(sourceAccount, sourceSecret, destinationAccount, uri
 }
 
 async function createAndSellUriToken(sourceAccount, sourceSecret, destinationAccount, uri, amount) {
+  console.log("Inside uri token wrapper create and sell")
   await initXahau();
 
   const accointInfoFirst = await getAccountInfo(sourceAccount);
@@ -269,7 +282,8 @@ const UriTokenHelper = {
   buyUriToken,
 };
 
-module.exports = UriTokenHelper;
+//module.exports = UriTokenHelper;
+export default UriTokenHelper;
 
 /*const sourceAccount = "rEF6EoYPKiPBuBcuJ33dXV773adWQUBxEb";
 const sourceSecret = "ssUaRpvSoGdkxM3HsczVfKXDGyxAC";

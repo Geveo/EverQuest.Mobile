@@ -99,6 +99,46 @@ export default class XummApiService {
     // }
   }
 
+  async buyUriToken(playerAddress: string, amount: string, uriTokenId: any) {
+    // amount = 1 = 0.000001 XAH
+    var acountService = new AccountService();
+    try {
+      this.token = await AsyncStorage.getItem('token');
+      const Sdk = new XummSdkJwt(this.token);
+      const pong = await Sdk.ping();
+      console.log(pong.application);
+
+      const payload = Sdk.payload.createAndSubscribe(
+        {
+          TransactionType: 'URITokenBuy',
+          URITokenID: uriTokenId,
+          Fee: "10",
+          NetworkID: 21338,
+          Amount: {
+            currency: TransactionConstants.CURRENCY,
+            value: amount,
+            issuer: TransactionConstants.ISSUER_ADDRESS
+          },
+        },
+        e => {
+          console.log(e.data);
+
+          // todo: save the payload uuid to database along with the transaction details
+
+          if (typeof e.data.signed !== 'undefined') {
+            return e.data;
+          }
+        },
+      );
+
+      console.log((await payload).created.next.always);
+      await payload;
+      console.log('Payment request submission completed.');
+    } catch (e) {
+      console.log({error: e.message, stack: e.stack});
+    }
+  }
+
   /**
    * This will make a payment request in Xaman, user must approve it via Xaman app
    */
