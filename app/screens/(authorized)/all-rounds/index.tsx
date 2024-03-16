@@ -131,6 +131,14 @@ export default function AllRoundsPage({ navigation, route }) {
       let hasTipped = false;
       for (const game of gamesForRound) {
         if (game.IsTeamLeftTipped || game.IsTeamRightTipped) {
+          if(game.IsTeamLeftTipped){
+            setSelectedCountry(game.TeamNameLeft);
+            setSelectedCountryId(game.MatchTeamIDLeft);
+          }
+          if(game.IsTeamRightTipped){
+            setSelectedCountry(game.TeamNameRight);
+            setSelectedCountryId(game.MatchTeamIDRight);
+          }
           hasTipped = true;
           break;
         }
@@ -146,9 +154,9 @@ export default function AllRoundsPage({ navigation, route }) {
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getGameInfoByGameID?gameId=${GameID}`
       );
-      const shuffleTime = new Date(response.data.GameAllInfo[0].ShuffleTime);
+      const shuffleTime = new Date(response.data.Rounds[roundNumber-1].LockDownTime);
       const shuffleTimeValue = new Date(
-        response.data.GameAllInfo[0].ShuffleTime
+        response.data.Rounds[roundNumber-1].LockDownTime
       );
       setShuffleTime(shuffleTimeValue);
       const currentTime = new Date();
@@ -283,6 +291,48 @@ export default function AllRoundsPage({ navigation, route }) {
     setSucessful(true);
   };
 
+      const userWinsBeforeEnds = response.data.GameHistory.filter(
+        (game) =>
+          game.IsVQWin === true &&
+          game.roundnumber === roundNumber &&
+          game.roundnumber < maxRoundNumber
+      );
+      console.log("User wins before ends:", userWinsBeforeEnds);
+      if (userWinsBeforeEnds.length === 1) {
+        setHasWonVQGame(true);
+      }
+    else{
+      setHasWonVQGame(false);
+    }
+      //console.log("Response from getGameResults:", response.data);
+    } catch (error) {
+      console.log("Error fetching game results:", error);
+    }
+  };
+
+  const confirmTippings = async (matchTeamId) => {
+    try {
+      const response = await axios.post(
+        `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${VQGameID}&matchTeamId=${matchTeamId}&vqPlayerID=${VQPlayerID}&userID=3472`
+      );
+      console.log("Response from confirmTippings:", response);
+    } catch (error) {
+      console.log("Error confirming tippings:", error);
+    }
+  };
+
+  const handleSubmitButtonPress = async () => {
+    if (selectedCountry === "") {
+      console.log("Please select a country");
+      return;
+    }
+    console.log("Selected country:", selectedCountry);
+    console.log("Selected country ID:", selectedCountryId);
+
+    await confirmTippings(selectedCountryId);
+    setSucessful(true);
+  };
+
   useEffect(() => {
     //getVQRelatedData();
     getGameResults();
@@ -300,7 +350,7 @@ export default function AllRoundsPage({ navigation, route }) {
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <PageTitle title={LeagueName} navigation={navigation} />
 
-      <Text style={styles.heading}> {gameName} </Text>
+      <Text style={styles.heading} numberOfLines={2}> {gameName} </Text>
 
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
@@ -567,6 +617,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: AppTheme.colors.emailGreen,
     marginTop: 20,
+    flexWrap: "wrap",
+    textAlign: "center",
   },
   mainContainer: {},
   topContainer: {

@@ -30,6 +30,9 @@ export default function AllJoinedGamespage({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
 
+  // const [hasWonLeague, setHasWonLeague] = useState(false);
+  // const [hasLeagueCompleted, setHasLeagueCompleted] = useState(false);
+
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
@@ -63,11 +66,20 @@ export default function AllJoinedGamespage({ navigation }) {
       console.log("After getting joinedGames", response.data);
       if (response.data) {
         const { Feeds } = response.data;
-        console.log("Feeds:", Feeds);
         setJoinedGamesPreviously(Feeds);
       } else {
         console.log("RoundMatches not found in response");
       }
+
+      const feeds = response.data.Feeds;
+      feeds.forEach(feed => {
+        const { VQPlayerStatus, LeagueName, GameName } = feed;
+        console.log(`Status: ${VQPlayerStatus}`);
+        
+        // Perform any additional logic or actions based on VQPlayerStatus here
+      });
+
+
     } catch (error) {
       console.log("Error getting countries", error);
     }
@@ -80,18 +92,25 @@ export default function AllJoinedGamespage({ navigation }) {
       <ScrollView style={styles.resultContainer}>
           {joinedGamesPreviously
             //.filter((game) => game.RoundName === "Round 1")
-            .map((game, index) => (
-              <JoinedGame
-                key={index} 
-                gameName={game.GameName} 
-                LeagueName={game.LeagueName} 
-                destination={"AllRoundsPage"} 
-                navigation={navigation}
-                GameID={game.GameID} 
-                VQGameID={game.VQGameID}
-                VQPlayerID={game.VQPlayerID}
-              />
-            ))}
+            .map((game, index) => {
+              // Determine the hasWonLeague status based on VQPlayerStatus
+              const hasWonLeague = game.VQPlayerStatus === "WON";
+              const hasLeagueCompleted = game.VQPlayerStatus === "WON" || game.VQPlayerStatus === "LOST" ;
+              return (
+                <JoinedGame
+                  key={index} 
+                  gameName={game.GameName} 
+                  LeagueName={game.LeagueName} 
+                  destination={"AllRoundsPage"} 
+                  navigation={navigation}
+                  GameID={game.GameID} 
+                  VQGameID={game.VQGameID}
+                  VQPlayerID={game.VQPlayerID}
+                  hasWonLeague={hasWonLeague} // Pass the determined status here
+                  hasLeagueCompleted={hasLeagueCompleted}
+                />
+              );
+            })}
         </ScrollView>
 
 

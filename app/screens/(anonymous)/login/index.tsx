@@ -88,15 +88,15 @@ export default function Login({ title, navigation }) {
           <Text style={styles.subText}>Login with your crypto wallet</Text>
         </View>
         <View style={styles.container}>
-        <Image
+        {/* <Image
             style={styles.image}
             source={require("../../../assets/images/logo.jpg")}
-          />   
+          />    */}
         </View>
         <View style={styles.button}>
           <SCButtonWithoutArrow
             onTap={handleLoginRequest}
-            text="Login with Xaman"
+            text="Xaman Wallet Login"
             bgColor={AppTheme.colors.buttonGreen}
             textColor={AppTheme.colors.white}
           />
@@ -134,6 +134,7 @@ const styles = StyleSheet.create({
   button: {
     marginTop: screen.height * 0.1,
     width: screenWidth * 0.85,
+    height: 70,
   },
   container: {
     paddingTop: 23,

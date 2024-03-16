@@ -33,6 +33,9 @@ let AppTheme = {
     greySubText: "#475467",
     greybackground: "#FAFAFA",
     lightGrey: "#AFAFAF",
+    hasWonGreen: "#C9FDE3",
+    hasLostRed: "#FDECEC",
+    roughWhite: "#F9F9F9"
   },
   spacings: {
     lineSpace: 10, // example
