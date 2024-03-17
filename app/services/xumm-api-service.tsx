@@ -134,6 +134,66 @@ export default class XummApiService {
       console.log((await payload).created.next.always);
       await payload;
       console.log('Payment request submission completed.');
+
+      var transactionObject = {
+        Player_ID: 10002,
+        Game_ID: 1135,
+        Transaction_Date: new Date().toISOString(),
+        URI_Token_Index: uriTokenId,
+        Amount: "5"
+      }
+      var response = await acountService.addFundsTransactions(transactionObject);
+      console.log(response)
+    } catch (e) {
+      console.log({error: e.message, stack: e.stack});
+    }
+  }
+
+  async SellUriToken(amount: string, uriTokenId: any) {
+    // amount = 1 = 0.000001 XAH
+    var acountService = new AccountService();
+    try {
+      this.token = await AsyncStorage.getItem('token');
+      const Sdk = new XummSdkJwt(this.token);
+      const pong = await Sdk.ping();
+      console.log(pong.application);
+
+      const payload = Sdk.payload.createAndSubscribe(
+        {
+          TransactionType: 'URITokenCreateSellOffer',
+          URITokenID: uriTokenId,
+          Fee: "10",
+          Destination: TransactionConstants.ADMIN_ADDRESS,
+          NetworkID: 21338,
+          Amount: {
+            currency: TransactionConstants.CURRENCY,
+            value: amount,
+            issuer: TransactionConstants.ISSUER_ADDRESS
+          },
+        },
+        e => {
+          console.log(e.data);
+
+          // todo: save the payload uuid to database along with the transaction details
+
+          if (typeof e.data.signed !== 'undefined') {
+            return e.data;
+          }
+        },
+      );
+
+      console.log((await payload).created.next.always);
+      await payload;
+      console.log('Payment request submission completed.');
+
+      var transactionObject = {
+        Player_ID: 10002,
+        Game_ID: 1130,
+        URI_Token_Index: uriTokenId,
+        Amount: "1"
+      }
+      var response = await acountService.addFundsTransactions(transactionObject);
+      console.log(response)
     } catch (e) {
       console.log({error: e.message, stack: e.stack});
     }

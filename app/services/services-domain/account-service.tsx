@@ -20,7 +20,7 @@ export default class AccountService {
         };
 
         var hasAccount = await this.submitToContract(messageObj);
-        return hasAccount;
+        return hasAccount.success;
     }
 
     async getPlayerID(xrpaddress) {
@@ -35,7 +35,7 @@ export default class AccountService {
         };
         var response = await this.submitToContract(messageObj);
         console.log("PlayerID response: ", response)
-        return response;
+        return response.success;
     }
 
     async addFundsTransactions(message){
@@ -46,12 +46,12 @@ export default class AccountService {
             data: message
         };
 
-        var response = await this.submitToContract(messageObj);
+        var response = await this.SubmitInputToContract(messageObj);
         return response;
     }
 
     async getTransactionHistory(message){
-        console.log("Creating a transaction record:", message);
+        console.log("Getiing a transaction record:", message);
         const messageObj = {
             service: requestConstants.RequestTypes.ACCOUNTS,
             action: requestConstants.AccountsRequestSubTypes.GET_TRANSACTION_HISTORY,
@@ -69,6 +69,18 @@ export default class AccountService {
         try {
             console.log("AllRequests", messageObj);
             var response = await HotPocketClientService.submitContractReadRequest(messageObj);
+            console.log("AllResponse", response);
+            return response;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    async SubmitInputToContract(messageObj) {
+        try {
+            console.log("AllRequests", messageObj);
+            var response = await HotPocketClientService.submitInputToContract(messageObj);
             console.log("AllResponse", response);
             return response;
         } catch (error) {

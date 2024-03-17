@@ -64,10 +64,11 @@ export default function WalletScreen({ navigation }) {
       return null;
     }
   }
-  async function getTransactionHistory(playerID){
+  async function getTransactionHistory(playerID, gameId){
     var acountService = new AccountService();
     var msgObj = {
-      Player_ID: playerID
+      Player_ID: playerID,
+      Game_ID: gameId
     }
     var response = await acountService.getTransactionHistory(msgObj);
     setTransactionHistory(response);
@@ -126,7 +127,7 @@ export default function WalletScreen({ navigation }) {
       };
       fetchData();
       //ToDo: get player id
-      getTransactionHistory("10002");
+      getTransactionHistory(10002, 1130);
     }
     );
 

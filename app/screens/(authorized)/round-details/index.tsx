@@ -79,7 +79,7 @@ export default function RoundDetails({ navigation, route }) {
   const getAllParticipants = async () => {
     try {
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=${VQGameID}&userID=3472`
+        `${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=${VQGameID}&userID=10002`
       );
 
       const filteredRoundDetails = response.data.GameHistory.

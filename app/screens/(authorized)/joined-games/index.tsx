@@ -61,7 +61,7 @@ export default function AllJoinedGamespage({ navigation }) {
     try {
       console.log("Before getting joinedGames");
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=3472`
+        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=10002`
       );
       console.log("After getting joinedGames", response.data);
       if (response.data) {
