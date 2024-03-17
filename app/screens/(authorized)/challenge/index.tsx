@@ -46,6 +46,7 @@ export default function Challenge({ navigation, route }) {
   const [fromAddress, setFromAddress] = useState("");
   const [playerXrpAddress, setPlayerXrpAddress] = useState("");
   const [secret, setSecret] = useState("");
+  const [playerId, setPlayerId] = useState("");
 
   const countryImages = {
     "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
@@ -202,10 +203,12 @@ export default function Challenge({ navigation, route }) {
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
       console.log("XRP Address: ", XRP_Address);
       const secret = await AsyncStorage.getItem("secret");
+      const playerID = await AsyncStorage.getItem("playerId");
       console.log("Secret: ", secret);
       setFromAddress(XRP_Address);
       setPlayerXrpAddress(XRP_Address);
       setSecret(secret);
+      setPlayerId(playerID);
       return { XRP_Address, secret };
     } catch (error) {
       console.error("Error getting credentials:", error);
@@ -270,18 +273,17 @@ export default function Challenge({ navigation, route }) {
 
   async function makePayment() {
     const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/createAndSellUriToken`;
-    const uniqueId = uuidv4();
-    const hexString = uniqueId.replace(/-/g, '');
+    const hexString = playerXrpAddress.replace(/-/g, '');
     console.log("Hexadecimal string:", hexString);
     const data = {
       sourceAccount: TransactionConstants.ADMIN_ADDRESS,
       sourceSecret: TransactionConstants.ADMIN_SECRET,
       destinationAccount: playerXrpAddress,
-      uri: "707265706172696E6720666F722064656D6F20706C61796572322032363534363436",
+      uri: "7245414C5056436B3870776B444C4A656D4C516434544E3368727068545A57644A5966656765677767777267",
       amount: {
         "currency": TransactionConstants.CURRENCY,
         "issuer": TransactionConstants.ISSUER_ADDRESS,
-        "value": "5"
+        "value": "20"
       }
     };
     try {
@@ -303,12 +305,23 @@ export default function Challenge({ navigation, route }) {
     const handleSubmitButtonPress = () => {
       console.log("Submit button pressed");
       submitUserResponse();
-      //makePayment();
+      makePayment();
       //sellGameToken(10002, 1134);
       //claimRewards();
       //sendXRP(fromAddress, secret, toAddress, gameValue);
       console.log("GameParticipantID", gameParticipantID);
     };
+
+    // const getTotalWinningAmount = async () => {
+    //   const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/api/games/GetWinningAmountPerPlayer?gameAmount=20&totalPlayers=7&totalWinners=1`;
+    //   try {
+    //     const response = await axios.get(url);
+    //     console.log(response)
+    //   } catch (error) {
+    //     console.error('Error:', error);
+    //     throw error;
+    //   }
+    // };
 
  //TODO: map actual result
   async function sellGameToken(playerID, gameId) {
@@ -373,6 +386,7 @@ export default function Challenge({ navigation, route }) {
       throw error;
     }
   }
+
 
 
   useEffect(() => {

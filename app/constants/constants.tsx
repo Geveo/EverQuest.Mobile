@@ -8,7 +8,7 @@ const TransactionConstants = {
     ADMIN_ADDRESS: "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y",
     ADMIN_SECRET: "shEqqDcto7dsCb9toeB6QPPNQRXKM",
     CURRENCY: "EVR",
-    URI_TOKEN_TNX_URL: "http://192.168.1.20:3000"
+    URI_TOKEN_TNX_URL: "http://192.168.1.16:3000"
 }
 
 const GameEngineApiParameters = {
@@ -26,4 +26,5 @@ module.exports = {
     UrlConstants,
     TransactionConstants,
     GameEngineApiParameters,
+    TransactionStatus,
 }

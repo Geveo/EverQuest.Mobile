@@ -8,6 +8,7 @@ const AccountsRequestSubTypes =  {
     ADD_FUNDS_TRANSACTIONS: "AddFundsTransactions",
     GET_TRANSACTION_HISTORY: "GetTransactionHistory",
     GET_PLAYER_ID: "GetPlayerID",
+    UPDATE_TRANSACTION_RECORD: "UpdateTransactionRecord",
 } 
 
 module.exports = {

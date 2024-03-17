@@ -88,4 +88,16 @@ export default class AccountService {
             throw error;
         }
     }
+
+    async updateTransactionStatus(message){
+        console.log("Updating Transaction Status:", message);
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.UPDATE_TRANSACTION_RECORD,
+            data: message
+        };
+
+        var response = await this.SubmitInputToContract(messageObj);
+        return response;
+    }
 }

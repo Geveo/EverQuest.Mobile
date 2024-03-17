@@ -19,9 +19,14 @@ import PageTitle from "../../../components/page-title/page-title";
 import CountryComponent from "../../../components/country-component/country-component";
 import axios from "axios";
 import SCButton from "../../../components/button/button";
+import AccountService from "../../../services/services-domain/account-service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import XummApiService from "../../../services/xumm-api-service";
 const {
   GameEngineApiParameters,
+  TransactionStatus,
 } = require(".../../../app/constants/constants");
+
 
 export default function AllRoundsPage({ navigation, route }) {
   const { gameName, LeagueName, GameID, VQGameID, VQPlayerID } = route.params;
@@ -37,6 +42,9 @@ export default function AllRoundsPage({ navigation, route }) {
   const [isFinished, setIsFinished] = useState(false);
   const [sucessful, setSucessful] = useState(true);
   const [hasWonRound, setHasWonRound] = useState(false);
+  const [playerID, setPlayerID] = useState("");
+  const [xrpaddress, setXrpAddress] = useState("");
+  const [uriTokenIndex, setUriTokenIndex] = useState("");
 
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCountryId, setSelectedCountryId] = useState(0);
@@ -49,6 +57,13 @@ export default function AllRoundsPage({ navigation, route }) {
   const [shuffleTime, setShuffleTime] = useState(null);
 
   const [hasWonVQGame, setHasWonVQGame] = useState(false);
+
+  const [sellButtonText, setSellButtonText] = useState("Sell Game Token");
+
+  const [totaWinninglPrice, setTotalWinningPrice] = useState(0);
+  
+
+  const [ hasWinningMoneyTaken, setHasWinningMoneyTaken] = useState(false);
 
   const countryImages = {
     "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
@@ -73,6 +88,18 @@ export default function AllRoundsPage({ navigation, route }) {
     Brazil: require("../../../assets/images/Brazil.png"),
     Portugal: require("../../../assets/images/Portugal.png"),
     Spain: require("../../../assets/images/Spain.png"),
+  };
+
+  const getCredentials = async () => {
+    try {
+      const XRP_Address = await AsyncStorage.getItem("XRP_Address");
+      const playerId = await AsyncStorage.getItem("playerId");
+      setPlayerID(playerId);
+      setXrpAddress(XRP_Address);
+      console.log("Player ID:", playerId);
+    } catch (error) {
+      console.error("Error getting credentials:", error);
+    }
   };
 
   const handleTabSelection = (tabName) => {
@@ -260,7 +287,7 @@ export default function AllRoundsPage({ navigation, route }) {
         setHasWonVQGame(true);
       }
     else{
-      setHasWonVQGame(false);
+      //setHasWonVQGame(false);
     }
       //console.log("Response from getGameResults:", response.data);
     } catch (error) {
@@ -291,6 +318,38 @@ export default function AllRoundsPage({ navigation, route }) {
     setSucessful(true);
   };
 
+  const getTotalWinningPrice = async () => {
+    try {
+      const response = await axios.get(
+        `${GameEngineApiParameters.URL}/api/games/GetWinningAmountPerPlayer?gameAmount=20&totalPlayers=7&totalWinners=1`
+      );
+      console.log("Response from getTotalWinningPrice:", response.data);
+      setTotalWinningPrice(response.data);
+    } catch (error) {
+      console.log("Error getting total winning price:", error);
+    }
+  };
+
+  const getwinningState = async () => {
+    try {
+      const response = await axios.get(
+        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=3472`
+      );
+      const winningState = response.data.Feeds.filter(
+        (game) => game.VQGameID === VQGameID && game.VQPlayerID === VQPlayerID
+      );
+      console.log("Response from getwinningState:", winningState[0].VQPlayerStatus);
+      if(winningState[0].VQPlayerStatus==="WON"){
+        setHasWonVQGame(true);
+      }
+      else if(winningState[0].VQPlayerStatus==="LOST"){
+        burnUriToken();
+      }
+    } catch (error) {
+      console.log("Error getting winning state:", error);
+    }
+  };
+
       
 
   // const confirmTippings = async (matchTeamId) => {
@@ -316,12 +375,129 @@ export default function AllRoundsPage({ navigation, route }) {
   //   setSucessful(true);
   // };
 
+  async function getTransactionStatus(){
+    try {
+      var acountService = new AccountService();
+    var msgObj = {
+      Player_ID: parseInt(playerID, 10),
+      Game_ID: GameID
+    }
+    var response = await acountService.getTransactionHistory(msgObj);
+
+    if (response.data[0].Transaction_Status === TransactionStatus.JOINED ) {
+      setSellButtonText("Sell Game Token");
+    } else if(response.data[0].Transaction_Status === TransactionStatus.SOLD){
+      setSellButtonText("Claim Rewards");
+    }
+    else if(response.data[0].Transaction_Status === TransactionStatus.REDEEMED){
+      setHasWinningMoneyTaken(true);
+    }
+    } catch (error) {
+      console.log("Error getting transaction status:", error);
+    }
+  }
+
+  const updateTransactionStatus = async (status) => {
+    //try {
+      var acountService = new AccountService();
+      var msgObj = {
+        Player_ID: parseInt(playerID, 10),
+        Game_ID: GameID,
+        Transaction_Status: status
+      }
+      await acountService.updateTransactionStatus(msgObj);
+    // } catch (error) {
+    //   console.log("Error updating transaction status:", error);
+    // }
+  };
+
+  //TODO: map actual result
+  async function sellGameToken(playerID, gameId) {
+    console.log("Inside sell game token")
+    const playerXrpAddress = await AsyncStorage.getItem("XRP_Address");
+    let isWinner = true;
+    let winningAmount = "5";
+    var acountService = new AccountService();
+    var msgObj = {
+      Player_ID: playerID,
+      Game_ID: gameId
+    }
+    var response = await acountService.getTransactionHistory(msgObj);
+    if (response.success) {
+      var transactionRecord = response.data[0];
+      var uriTokenIndex = transactionRecord.URI_Token_Index;
+      setUriTokenIndex(uriTokenIndex);
+        var xummApiService = new XummApiService();
+        xummApiService.SellUriToken(totaWinninglPrice.toString(), uriTokenIndex);
+      
+    }
+  }
+
+  async function burnUriToken() {
+    const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/burnUriToken`;
+    const data = {
+      adminAccount: TransactionConstants.ADMIN_ADDRESS,
+      adminSecret: TransactionConstants.ADMIN_SECRET,
+      playerAccount: xrpaddress,
+      uri: uriTokenIndex,
+    }
+
+    try {
+      const response = await axios.post(url, data);
+      console.log(response)
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
+
+  async function claimRewards() {
+    let winningAmount = "5";
+    console.log(xrpaddress);
+    const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/redeemUriToken`;
+    const data = {
+      adminAccount: TransactionConstants.ADMIN_ADDRESS,
+      adminSecret: TransactionConstants.ADMIN_SECRET,
+      uri: uriTokenIndex,
+      amount: {
+        "currency": TransactionConstants.CURRENCY,
+        "issuer": TransactionConstants.ISSUER_ADDRESS,
+        "value": totaWinninglPrice.toString()
+      }
+    }
+    try {
+      const response = await axios.post(url, data);
+      console.log(response)
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
+  
+
   useEffect(() => {
     //getVQRelatedData();
     getGameResults();
     getShuffleTime();
     getAllgames();
+    getTotalWinningPrice();
+    getwinningState();
+    //getTransactionStatus();
+    getCredentials();
   }, [roundNumber]);
+
+  const onSellButtonPress = async () => {
+    if(sellButtonText === "Sell Game Token"){
+      sellGameToken(playerID, GameID);
+      //await updateTransactionStatus(TransactionStatus.SOLD);
+      setSellButtonText("Claim Rewards");
+    }
+    else if(sellButtonText === "Claim Rewards"){
+      //await updateTransactionStatus(TransactionStatus.REDEEMED);
+      setHasWinningMoneyTaken(true);
+      claimRewards();
+    }
+  };
 
   // useEffect(() => {
   //   getGameResults();
@@ -413,7 +589,7 @@ export default function AllRoundsPage({ navigation, route }) {
                       <TouchableOpacity
                         style={styles.submitButtonContainer}
                         onPress={() => {
-                          //handleSubmitButtonPress();
+                          handleSubmitButtonPress();
                         }}
                       >
                         <Text style={styles.submitButtonText}>Submit</Text>
@@ -499,7 +675,7 @@ export default function AllRoundsPage({ navigation, route }) {
                             />
                             <Text style={styles.GameWinningResultText}>You are the Winner</Text>
                             <Text style={styles.priceText}>
-                              Total Prize: 1000 EVR
+                              Total Prize: {totaWinninglPrice} EVR
                             </Text>
                             <TouchableOpacity
                               onPress={() => {
@@ -514,6 +690,21 @@ export default function AllRoundsPage({ navigation, route }) {
                               Round details
                             </Text>
                             </TouchableOpacity>
+                            {
+                              hasWinningMoneyTaken ? (
+                                <Text style={styles.textResult}>
+                                  Winning money has been taken
+                                </Text>
+                              ) : (
+                                <TouchableOpacity onPress={onSellButtonPress}>
+                              <View style={styles.SellButton}>
+                                <Text style={styles.SellButtonText }> {sellButtonText} </Text>
+                              </View>
+                            </TouchableOpacity>
+                              )
+                            }
+
+                            
                             
                           </View>
                         </>
@@ -664,7 +855,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   resultContainer: {
-    marginVertical: 20,
+    marginVertical: 0,
     alignSelf: "center",
     width: "80%",
   },
@@ -741,6 +932,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   GameWinningText: {
+    marginTop: -10,
     fontSize: 40,
     fontWeight: "600",
     alignSelf: "center",
@@ -753,10 +945,23 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.black,
   },
   priceText: {
-    marginTop: 25,
+    marginTop: 15,
     fontSize: 30,
     fontWeight: "600",
     alignSelf: "center",
     color: AppTheme.colors.lightGrey,
+  },
+  SellButton: {
+    backgroundColor: AppTheme.colors.buttonGreen,
+    borderRadius: 8,
+    padding: 15,
+    marginHorizontal: 5,
+    marginTop: 20,
+  },
+  SellButtonText: {
+    fontSize: 15,
+    color: AppTheme.colors.white,
+    fontWeight: "600",
+    alignSelf: "center",
   },
 });

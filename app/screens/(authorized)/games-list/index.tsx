@@ -48,13 +48,15 @@ export default function GamesList({ navigation }) {
     try {
       console.log(" Before request: ");
       const response = await axios.get(`${GameEngineApiParameters.URL}/api/games/getLeaguesBySportID?sportID=${sportId}`);
-      console.log("Response: ", response.data);
-      const sortedGames = response.data.Leagues.map(game => ({
-        ...game,
-        StartDate: game.StartDate.substring(0, 10),
-        EndDate: game.EndDate.substring(0, 10),
-      })).sort((a: any, b: any) => new Date(b.EndDate).getTime() - new Date(a.EndDate).getTime());
-      setGames(sortedGames);
+      //console.log("Response: ", response.data);
+      if(Object.keys(response.data).length !== 0) {
+        const sortedGames = response.data.Leagues.map(game => ({
+          ...game,
+          StartDate: game.StartDate.substring(0, 10),
+          EndDate: game.EndDate.substring(0, 10),
+        })).sort((a: any, b: any) => new Date(b.EndDate).getTime() - new Date(a.EndDate).getTime());
+        setGames(sortedGames);
+      }
     } catch (error) {
       console.error("Error fetching games:", error);
     }
@@ -84,17 +86,23 @@ export default function GamesList({ navigation }) {
       <PageTitle title={sportName} navigation={navigation}/>
 
       <ScrollView style={styles.mainContainer}>
+        {
+          games.length > 0 ? (<>{games.map((game, index) => (
+            <TouchableOpacity key={index} onPress={() => navigation.navigate("Tournament", { title: game.LeagueName, gameId: game.LeagueID })}>
+              <GameItem
+                gameName={game.LeagueName}
+                gameStatus={game.IsActive ? "Active" : "Inactive"}
+                gameStartDate={game.StartDate}
+                gameEndDate={game.EndDate}
+              />
+            </TouchableOpacity>
+          ))}</>): (
+          <View style={styles.container}>
+            <Text style={styles.title}>No Active games found</Text>
+          </View>)
+        }
        
-      {games.map((game, index) => (
-        <TouchableOpacity key={index} onPress={() => navigation.navigate("Tournament", { title: game.LeagueName, gameId: game.LeagueID })}>
-          <GameItem
-            gameName={game.LeagueName}
-            gameStatus={game.IsActive ? "Active" : "Inactive"}
-            gameStartDate={game.StartDate}
-            gameEndDate={game.EndDate}
-          />
-        </TouchableOpacity>
-      ))}
+      
 
       </ScrollView>
 
@@ -111,5 +119,15 @@ const styles = StyleSheet.create({
   mainContainer: {
     marginTop: 30,
     marginBottom: 100,
-  }
+  },
+  container: {
+    alignItems: "center",
+  },
+  title: {
+    marginTop: 300,
+    fontWeight: "500",
+    fontSize: 25,
+    alignSelf: "center",
+    color: AppTheme.colors.textGrey,
+  },
 });

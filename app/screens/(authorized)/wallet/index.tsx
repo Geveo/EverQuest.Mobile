@@ -127,7 +127,7 @@ export default function WalletScreen({ navigation }) {
       };
       fetchData();
       //ToDo: get player id
-      getTransactionHistory(10002, 1130);
+      getTransactionHistory(3472, 1130);
     }
     );
 
