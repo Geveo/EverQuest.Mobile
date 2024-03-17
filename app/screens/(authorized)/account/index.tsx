@@ -18,15 +18,16 @@ import PageTitle from "../../../components/page-title/page-title";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { showToast } from "../../../services/toast-service";
 import { ToastMessageTypes } from "../../../helpers/constants";
+import AccountService from "../../../services/services-domain/account-service";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function Account({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
-
-  const userName = "Test User";
+  const [userName, setUsername] = useState("");
 
   useEffect(() => {
+    getUsername();
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
@@ -44,6 +45,18 @@ export default function Account({ navigation }) {
       }
     };
   }, [navigation]);
+
+  async function getUsername() {
+    try {
+      var acountService = new AccountService();
+      const XRP_Address = await AsyncStorage.getItem("XRP_Address");
+      var response = await acountService.getPlayerName(XRP_Address);
+      setUsername(response)
+    }
+    catch (error) {
+      console.error("Error occurred while getting username:", error);
+    }
+  }
 
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);

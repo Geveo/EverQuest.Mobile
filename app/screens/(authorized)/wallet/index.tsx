@@ -28,16 +28,12 @@ export default function WalletScreen({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [availableFunds, setAvailableFunds] = useState(0);
   const [xrpPriceInUSDOllars, setXrpPriceInUSDollars] = useState(0);
-  const [transactionHistory, setTransactionHistory] = useState([]);
+  const [transactionList, setTransactionList] = useState([]);
+
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
   }
-  const transactions = [
-    { id: '1', date: '2024-03-13', amount: 50, type: 'Deposit', description: 'Test Leaugue 5 - 20 EVR game' },
-    { id: '2', date: '2024-03-12', amount: -20, type: 'Withdrawal', description: 'Test Leaugue 4 - 20 EVR game' },
-    // Add more transactions as needed
-  ];
 
   const getCredentials = async () => {
     try {
@@ -64,14 +60,27 @@ export default function WalletScreen({ navigation }) {
       return null;
     }
   }
-  async function getTransactionHistory(playerID, gameId){
+  async function getTransactionHistory(playerID){
     var acountService = new AccountService();
+    //TODO: remove game ID
     var msgObj = {
       Player_ID: playerID,
-      Game_ID: gameId
+      Game_ID: 1135
     }
     var response = await acountService.getTransactionHistory(msgObj);
-    setTransactionHistory(response);
+
+    if(response.data != undefined){
+      const transactions = response.data.map((item, index) => ({
+        key: index,
+        date: item.Transaction_Date.substring(0, 10),
+        gameId: item.Game_ID.toString(), 
+        amount: item.Amount,
+        status: item.Transaction_Status,
+      }));
+      console.log("Transaction List", transactions);
+
+      setTransactionList(transactions)
+    }
   }
 
   async function checkIssuedCurrencyBalance(account, currencyCode, issuer) {
@@ -127,7 +136,7 @@ export default function WalletScreen({ navigation }) {
       };
       fetchData();
       //ToDo: get player id
-      getTransactionHistory(3472, 1130);
+      getTransactionHistory(10002);
     }
     );
 
@@ -152,8 +161,9 @@ export default function WalletScreen({ navigation }) {
     const renderItem = ({ item }) => (
       <View style={styles.transactionItem}>
         <Text>{item.date}</Text>
-        <Text>{item.type}</Text>
+        <Text>{item.gameId}</Text>
         <Text>{item.amount} EVR</Text>
+        <Text>{item.status}</Text>
       </View>
     );
   
@@ -166,12 +176,16 @@ export default function WalletScreen({ navigation }) {
         <Text style={styles.usdText}>{xrpPriceInUSDOllars * availableFunds} USD</Text>
         </View>
         <View style={styles.transactionHistorycontainer}>
-        <Text style={styles.historyHeading}>Transaction History</Text>
-        <FlatList
-          data={transactions}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-        />
+          <Text style={styles.historyHeading}>Transaction History</Text>
+          {transactionList.length > 0 ? (
+            <FlatList
+              data={transactionList}
+              renderItem={renderItem}
+              keyExtractor={item => item.id}
+            />
+          ) : (
+            <Text>No transactions found.</Text>
+          )}
         </View>
 
         <EQBottomNavigationBar

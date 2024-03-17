@@ -38,6 +38,21 @@ export default class AccountService {
         return response.success;
     }
 
+    async getPlayerName(xrpaddress) {
+        console.log("Gettting player Name")
+        var message = {
+            XRP_Address: xrpaddress,
+        };
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.GET_PLAYER_NAME,
+            data: message
+        };
+        var response = await this.submitToContract(messageObj);
+        console.log("PlayerName response: ", response)
+        return response.success;
+    }
+
     async addFundsTransactions(message){
         console.log("Creating a transaction record:", message);
         const messageObj = {
@@ -62,6 +77,17 @@ export default class AccountService {
         return response;
     }
 
+    async getTransactionStatus(message){
+        console.log("Getiing a transaction record:", message);
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.GET_TRANSACTION_STATUS,
+            data: message
+        };
+
+        var response = await this.submitToContract(messageObj);
+        return response;
+    }
     /*
      * Sample Submit Input To Contract Request.
      */
