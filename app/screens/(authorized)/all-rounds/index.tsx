@@ -25,6 +25,7 @@ import XummApiService from "../../../services/xumm-api-service";
 const {
   GameEngineApiParameters,
   TransactionStatus,
+  TransactionConstants
 } = require(".../../../app/constants/constants");
 
 
@@ -345,6 +346,10 @@ export default function AllRoundsPage({ navigation, route }) {
       else if(winningState[0].VQPlayerStatus==="LOST"){
         burnUriToken();
       }
+      // else if (winningState[0].VQPlayerStatus===null){
+      //   console.log("User lo st ")
+      //   burnUriToken();
+      // }
     } catch (error) {
       console.log("Error getting winning state:", error);
     }
@@ -415,20 +420,18 @@ export default function AllRoundsPage({ navigation, route }) {
   async function sellGameToken(playerID, gameId) {
     console.log("Inside sell game token")
     const playerXrpAddress = await AsyncStorage.getItem("XRP_Address");
-    let isWinner = true;
-    let winningAmount = "5";
     var acountService = new AccountService();
     var msgObj = {
       Player_ID: playerID,
       Game_ID: gameId
     }
-    var response = await acountService.getTransactionHistory(msgObj);
+    var response = await acountService.getTransactionRecord(msgObj);
     if (response.success) {
       var transactionRecord = response.data[0];
       var uriTokenIndex = transactionRecord.URI_Token_Index;
       setUriTokenIndex(uriTokenIndex);
-        var xummApiService = new XummApiService();
-        xummApiService.SellUriToken(totaWinninglPrice.toString(), uriTokenIndex);
+      var xummApiService = new XummApiService();
+      xummApiService.SellUriToken(totaWinninglPrice.toString(), uriTokenIndex);
       
     }
   }
@@ -438,7 +441,6 @@ export default function AllRoundsPage({ navigation, route }) {
     const data = {
       adminAccount: TransactionConstants.ADMIN_ADDRESS,
       adminSecret: TransactionConstants.ADMIN_SECRET,
-      playerAccount: xrpaddress,
       uri: uriTokenIndex,
     }
 

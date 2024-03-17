@@ -11,6 +11,7 @@ const AccountsRequestSubTypes =  {
     GET_PLAYER_ID: "GetPlayerID",
     GET_PLAYER_NAME: "GetPlayerName",
     UPDATE_TRANSACTION_RECORD: "UpdateTransactionRecord",
+    GET_TRANSACTION_RECORD: "GetTransactionRecord",
 } 
 
 module.exports = {

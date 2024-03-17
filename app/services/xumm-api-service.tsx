@@ -136,8 +136,8 @@ export default class XummApiService {
       console.log('Payment request submission completed.');
 
       var transactionObject = {
-        Player_ID: 10001,
-        Game_ID: 2151,
+        Player_ID: 10002,
+        Game_ID: 1138,
         Transaction_Date: new Date().toISOString(),
         URI_Token_Index: uriTokenId,
         Amount: "5"

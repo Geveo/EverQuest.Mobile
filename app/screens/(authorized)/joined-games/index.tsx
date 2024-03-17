@@ -29,7 +29,8 @@ export default function AllJoinedGamespage({ navigation }) {
 
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
-
+  const [playerID, setPlayerID] = useState("");
+  const [xrpaddress, setXrpAddress] = useState("");
   // const [hasWonLeague, setHasWonLeague] = useState(false);
   // const [hasLeagueCompleted, setHasLeagueCompleted] = useState(false);
 
@@ -38,7 +39,20 @@ export default function AllJoinedGamespage({ navigation }) {
     return true;
   }
 
+  const getCredentials = async () => {
+    try {
+      const XRP_Address = await AsyncStorage.getItem("XRP_Address");
+      const playerId = await AsyncStorage.getItem("playerId");
+      setPlayerID(playerId);
+      setXrpAddress(XRP_Address);
+      console.log("Player ID:", playerId);
+    } catch (error) {
+      console.error("Error getting credentials:", error);
+    }
+  };
+
   useEffect(() => {
+    getCredentials()
     joinedGames();
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -61,7 +75,7 @@ export default function AllJoinedGamespage({ navigation }) {
     try {
       console.log("Before getting joinedGames");
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=3472`
+        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=10002`
       );
       console.log("After getting joinedGames", response.data);
       if (response.data) {

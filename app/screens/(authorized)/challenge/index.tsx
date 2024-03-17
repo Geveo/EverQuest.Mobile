@@ -22,8 +22,7 @@ import axios from "axios";
 import { set } from "date-fns";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import XummApiService from "../../../services/xumm-api-service";
-import AccountService from "../../../services/services-domain/account-service";
-import { v4 as uuidv4 } from 'uuid';
+
 const {
   GameEngineApiParameters,
   TransactionConstants
@@ -72,8 +71,6 @@ export default function Challenge({ navigation, route }) {
     "Portugal": require("../../../assets/images/Portugal.png"),
     "Spain": require("../../../assets/images/Spain.png"),
   };
-
-  const [uriTokenIndex, setUriTokenIndex] = useState("");
   const { gameType, gameName, gameId } = route.params;
 
   const gameAmount = String(gameType.replace('$', '')); 
@@ -271,15 +268,25 @@ export default function Challenge({ navigation, route }) {
       }
     }
 
+  const stringToHex = (str) => {
+    let hex = '';
+    for (let i = 0; i < str.length; i++) {
+      hex += '' + str.charCodeAt(i).toString(16);
+    }
+    return hex.toUpperCase();
+  };
+
   async function makePayment() {
     const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/createAndSellUriToken`;
-    const hexString = playerXrpAddress.replace(/-/g, '');
+    var uniqueId = `${playerXrpAddress}${gameId}`
+    
+    const hexString = stringToHex(uniqueId);
     console.log("Hexadecimal string:", hexString);
     const data = {
       sourceAccount: TransactionConstants.ADMIN_ADDRESS,
       sourceSecret: TransactionConstants.ADMIN_SECRET,
       destinationAccount: playerXrpAddress,
-      uri: "7245414C5056436B3870776B444C4A656D4C516434544E3368727068545A57644A5966656765677767777267",
+      uri: hexString,
       amount: {
         "currency": TransactionConstants.CURRENCY,
         "issuer": TransactionConstants.ISSUER_ADDRESS,
@@ -292,7 +299,7 @@ export default function Challenge({ navigation, route }) {
 
       var uRITokenID = response.data.result;
       var xummApiService = new XummApiService();
-      xummApiService.buyUriToken(playerXrpAddress, "5", uRITokenID);
+      xummApiService.buyUriToken(playerXrpAddress, "20", uRITokenID);
       return response.data.result; 
     } catch (error) {
       console.error('Error:', error);
@@ -306,8 +313,6 @@ export default function Challenge({ navigation, route }) {
       console.log("Submit button pressed");
       submitUserResponse();
       makePayment();
-      //sellGameToken(10002, 1134);
-      //claimRewards();
       //sendXRP(fromAddress, secret, toAddress, gameValue);
       console.log("GameParticipantID", gameParticipantID);
     };
@@ -322,72 +327,6 @@ export default function Challenge({ navigation, route }) {
     //     throw error;
     //   }
     // };
-
- //TODO: map actual result
-  async function sellGameToken(playerID, gameId) {
-    console.log("Inside sell game token")
-    const playerXrpAddress = await AsyncStorage.getItem("XRP_Address");
-    let isWinner = true;
-    let winningAmount = "5";
-    var acountService = new AccountService();
-    var msgObj = {
-      Player_ID: playerID,
-      Game_ID: gameId
-    }
-    var response = await acountService.getTransactionHistory(msgObj);
-    if (response.success) {
-      var transactionRecord = response.data[0];
-      var uriTokenIndex = transactionRecord.URI_Token_Index;
-      setUriTokenIndex(uriTokenIndex);
-      if (isWinner) {
-        var xummApiService = new XummApiService();
-        xummApiService.SellUriToken(winningAmount, uriTokenIndex);
-      }
-      else {
-        const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/burnUriToken`;
-        const data = {
-          adminAccount: TransactionConstants.ADMIN_ADDRESS,
-          adminSecret: TransactionConstants.ADMIN_SECRET,
-          playerAccount: playerXrpAddress,
-          uri: uriTokenIndex,
-        }
-
-        try {
-          const response = await axios.post(url, data);
-          console.log(response)
-        } catch (error) {
-          console.error('Error:', error);
-          throw error;
-        }
-      }
-
-    }
-  }
-
-  async function claimRewards() {
-    let winningAmount = "5";
-    console.log(playerXrpAddress);
-    const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/redeemUriToken`;
-    const data = {
-      adminAccount: TransactionConstants.ADMIN_ADDRESS,
-      adminSecret: TransactionConstants.ADMIN_SECRET,
-      uri: uriTokenIndex,
-      amount: {
-        "currency": TransactionConstants.CURRENCY,
-        "issuer": TransactionConstants.ISSUER_ADDRESS,
-        "value": winningAmount
-      }
-    }
-    try {
-      const response = await axios.post(url, data);
-      console.log(response)
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
-    }
-  }
-
-
 
   useEffect(() => {
     getCredentials();
