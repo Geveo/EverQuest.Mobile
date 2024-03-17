@@ -291,47 +291,30 @@ export default function AllRoundsPage({ navigation, route }) {
     setSucessful(true);
   };
 
-      const userWinsBeforeEnds = response.data.GameHistory.filter(
-        (game) =>
-          game.IsVQWin === true &&
-          game.roundnumber === roundNumber &&
-          game.roundnumber < maxRoundNumber
-      );
-      console.log("User wins before ends:", userWinsBeforeEnds);
-      if (userWinsBeforeEnds.length === 1) {
-        setHasWonVQGame(true);
-      }
-    else{
-      setHasWonVQGame(false);
-    }
-      //console.log("Response from getGameResults:", response.data);
-    } catch (error) {
-      console.log("Error fetching game results:", error);
-    }
-  };
+      
 
-  const confirmTippings = async (matchTeamId) => {
-    try {
-      const response = await axios.post(
-        `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${VQGameID}&matchTeamId=${matchTeamId}&vqPlayerID=${VQPlayerID}&userID=3472`
-      );
-      console.log("Response from confirmTippings:", response);
-    } catch (error) {
-      console.log("Error confirming tippings:", error);
-    }
-  };
+  // const confirmTippings = async (matchTeamId) => {
+  //   try {
+  //     const response = await axios.post(
+  //       `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${VQGameID}&matchTeamId=${matchTeamId}&vqPlayerID=${VQPlayerID}&userID=3472`
+  //     );
+  //     console.log("Response from confirmTippings:", response);
+  //   } catch (error) {
+  //     console.log("Error confirming tippings:", error);
+  //   }
+  // };
 
-  const handleSubmitButtonPress = async () => {
-    if (selectedCountry === "") {
-      console.log("Please select a country");
-      return;
-    }
-    console.log("Selected country:", selectedCountry);
-    console.log("Selected country ID:", selectedCountryId);
+  // const handleSubmitButtonPress = async () => {
+  //   if (selectedCountry === "") {
+  //     console.log("Please select a country");
+  //     return;
+  //   }
+  //   console.log("Selected country:", selectedCountry);
+  //   console.log("Selected country ID:", selectedCountryId);
 
-    await confirmTippings(selectedCountryId);
-    setSucessful(true);
-  };
+  //   await confirmTippings(selectedCountryId);
+  //   setSucessful(true);
+  // };
 
   useEffect(() => {
     //getVQRelatedData();
