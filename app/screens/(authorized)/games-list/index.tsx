@@ -98,7 +98,7 @@ export default function GamesList({ navigation }) {
             </TouchableOpacity>
           ))}</>): (
           <View style={styles.container}>
-            <Text style={styles.title}>No Active games found</Text>
+            <Text style={styles.title}>No active games found</Text>
           </View>)
         }
        

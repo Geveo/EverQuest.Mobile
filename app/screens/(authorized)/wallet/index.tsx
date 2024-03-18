@@ -60,27 +60,29 @@ export default function WalletScreen({ navigation }) {
       return null;
     }
   }
-  async function getTransactionHistory(playerID){
+  async function getTransactionHistory(playerID) {
     var acountService = new AccountService();
-    //TODO: remove game ID
     var msgObj = {
-      Player_ID: playerID,
-      Game_ID: 1135
+      Player_ID: playerID
     }
-    var response = await acountService.getTransactionHistory(msgObj);
+    acountService.getTransactionHistory(msgObj)
+      .then((response) => {
+        if (response.data != undefined) {
+          const transactions = response.data.map((item, index) => ({
+            key: index,
+            date: item.Transaction_Date.substring(0, 10),
+            gameId: item.Game_ID.toString(),
+            amount: item.Amount,
+            status: item.Transaction_Status,
+          }));
+          console.log("Transaction List", transactions);
 
-    if(response.data != undefined){
-      const transactions = response.data.map((item, index) => ({
-        key: index,
-        date: item.Transaction_Date.substring(0, 10),
-        gameId: item.Game_ID.toString(), 
-        amount: item.Amount,
-        status: item.Transaction_Status,
-      }));
-      console.log("Transaction List", transactions);
-
-      setTransactionList(transactions)
-    }
+          setTransactionList(transactions)
+        }
+      })
+      .catch((error) => {
+        console.error("Error while getting transaction records:", error);
+      });
   }
 
   async function checkIssuedCurrencyBalance(account, currencyCode, issuer) {

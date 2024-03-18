@@ -383,40 +383,41 @@ export default function AllRoundsPage({ navigation, route }) {
   async function getTransactionStatus(){
     try {
       var acountService = new AccountService();
-    var msgObj = {
-      Player_ID: parseInt(playerID, 10),
-      Game_ID: GameID
-    }
-    var response = await acountService.getTransactionHistory(msgObj);
+      var msgObj = {
+        Player_ID: 10001,
+        Game_ID: GameID
+      }
+      var response = await acountService.getTransactionHistory(msgObj);
 
-    if (response.data[0].Transaction_Status === TransactionStatus.JOINED ) {
-      setSellButtonText("Sell Game Token");
-    } else if(response.data[0].Transaction_Status === TransactionStatus.SOLD){
-      setSellButtonText("Claim Rewards");
-    }
-    else if(response.data[0].Transaction_Status === TransactionStatus.REDEEMED){
-      setHasWinningMoneyTaken(true);
-    }
-    } catch (error) {
-      console.log("Error getting transaction status:", error);
-    }
+      if (response.data[0].Transaction_Status === TransactionStatus.JOINED ) {
+        setSellButtonText("Sell Game Token");
+      } else if(response.data[0].Transaction_Status === TransactionStatus.SOLD){
+        setSellButtonText("Claim Rewards");
+      }
+      else if(response.data[0].Transaction_Status === TransactionStatus.REDEEMED){
+        setHasWinningMoneyTaken(true);
+      }
+      } catch (error) {
+        console.log("Error getting transaction status:", error);
+      }
   }
 
   const updateTransactionStatus = async (status) => {
-    //try {
       var acountService = new AccountService();
       var msgObj = {
         Player_ID: parseInt(playerID, 10),
         Game_ID: GameID,
         Transaction_Status: status
       }
-      await acountService.updateTransactionStatus(msgObj);
-    // } catch (error) {
-    //   console.log("Error updating transaction status:", error);
-    // }
+      acountService.updateTransactionStatus(msgObj)
+      .then((response) => {
+        console.log("Update response: ", response)
+      })
+      .catch((error) => {
+        console.log("Error while updating the status")
+      })
   };
 
-  //TODO: map actual result
   async function sellGameToken(playerID, gameId) {
     console.log("Inside sell game token")
     const playerXrpAddress = await AsyncStorage.getItem("XRP_Address");
@@ -484,7 +485,7 @@ export default function AllRoundsPage({ navigation, route }) {
     getAllgames();
     getTotalWinningPrice();
     getwinningState();
-    //getTransactionStatus();
+    getTransactionStatus();
     getCredentials();
   }, [roundNumber]);
 

@@ -66,7 +66,7 @@ export default class AccountService {
     }
 
     async getTransactionHistory(message){
-        console.log("Getiing a transaction history record:", message);
+        console.log("Geting a transaction history record:", message);
         const messageObj = {
             service: requestConstants.RequestTypes.ACCOUNTS,
             action: requestConstants.AccountsRequestSubTypes.GET_TRANSACTION_HISTORY,
@@ -78,7 +78,7 @@ export default class AccountService {
     }
 
     async getTransactionRecord(message){
-        console.log("Getiing a transaction record:", message);
+        console.log("Geting a transaction record:", message);
         const messageObj = {
             service: requestConstants.RequestTypes.ACCOUNTS,
             action: requestConstants.AccountsRequestSubTypes.GET_TRANSACTION_RECORD,
