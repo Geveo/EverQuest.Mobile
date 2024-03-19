@@ -24,12 +24,13 @@ const {
 } = require(".../../../app/constants/constants");
 import axios from "axios";
 import JoinedGame from "../../../components/joined-game/joined-game";
+import { ActivityIndicator } from "react-native";
 
-export default function AllJoinedGamespage({ navigation }) {
+export default function AllJoinedGamespage({ navigation, route }) {
+  const  { playerID } = route.params;
 
-  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(true);
   const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
-  const [playerID, setPlayerID] = useState(0);
   const [xrpaddress, setXrpAddress] = useState("");
   // const [hasWonLeague, setHasWonLeague] = useState(false);
   // const [hasLeagueCompleted, setHasLeagueCompleted] = useState(false);
@@ -39,22 +40,7 @@ export default function AllJoinedGamespage({ navigation }) {
     return true;
   }
 
-  const getCredentials = async () => {
-    try {
-      const XRP_Address = await AsyncStorage.getItem("XRP_Address");
-      const playerId = await AsyncStorage.getItem("playerId");
-      const playerIdInt = parseInt(playerId, 10); // Convert playerId to integer
-      setPlayerID(playerIdInt);
-      setXrpAddress(XRP_Address);
-      console.log("Player ID:", playerId);
-    } catch (error) {
-      console.error("Error getting credentials:", error);
-    }
-  };
-
   useEffect(() => {
-    getCredentials()
-    joinedGames();
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
@@ -74,11 +60,17 @@ export default function AllJoinedGamespage({ navigation }) {
 
   const joinedGames = async () => {
     try {
-      console.log("Before getting joinedGames");
+      console.log("Before getting joinedGames", playerID);
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=${playerID}`
       );
       console.log("After getting joinedGames", response.data);
+      if (response.data) {
+        
+      }
+      if (response) {
+        setShowLoadingIndicator(false);
+      }
       if (response.data) {
         const { Feeds } = response.data;
         setJoinedGamesPreviously(Feeds);
@@ -100,9 +92,21 @@ export default function AllJoinedGamespage({ navigation }) {
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      await joinedGames();
+    };
+  
+    fetchData();
+  
+    // BackHandler and cleanup code remain unchanged
+  }, []);
+
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <PageTitle title="My Games" navigation={navigation} />
+
+      
 
       <ScrollView style={styles.resultContainer}>
           {joinedGamesPreviously
@@ -157,5 +161,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "90%",
     marginBottom: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

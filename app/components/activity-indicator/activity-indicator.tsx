@@ -8,7 +8,7 @@ export default function WaitIndicator({ show = false }) {
         <View style={styles.container}>
           <ActivityIndicator
             size="large"
-            color={AppTheme.colors.black}
+            color={AppTheme.colors.emailGreen}
             style={styles.indicator}
           />
           <Text style={styles.text}>Please wait...</Text>
@@ -32,12 +32,13 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   indicator: {
-    top: "60%",
+    top: "50%",
     opacity: 1,
   },
   text: {
     alignSelf: "center",
-    top: "60%",
+    top: "50%",
     opacity: 1,
+    color: AppTheme.colors.emailGreen,
   },
 });
