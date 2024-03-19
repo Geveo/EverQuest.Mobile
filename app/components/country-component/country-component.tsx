@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   countryName: {
-    alighnSelf: "center",
     marginTop: 15,
     color: AppTheme.colors.black,
     fontSize: 16,

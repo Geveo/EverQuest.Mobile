@@ -188,7 +188,7 @@ export default function WalletScreen({ navigation }) {
             <FlatList
               data={transactionList}
               renderItem={renderItem}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.key}
             />
           ) : (
             <Text>No transactions found.</Text>

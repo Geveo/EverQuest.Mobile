@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     Dimensions,
   StyleSheet,
@@ -8,10 +8,11 @@ import {
 } from "react-native";
 import AppTheme from "../../helpers/theme";
 import SCButtonWithoutArrow from "../button-without-arrow/button-without-arrow";
+import moment from 'moment';
 
 // export default function ChallengeItem({ navigation, amount, playerCount,minimumPlayerCount, callParentMethod}) {
 export default function ChallengeItem({ navigation, amount, shuffleTime ,minimumPlayerCount, pathOnPress, gameName, gameId, gameType}) {
-
+  const [formattedDateTime, setFormattedDateTime] = useState('');
   const handlePress = () => {
     if (pathOnPress) {
       navigation.navigate(pathOnPress, { gameName, gameId, gameType });
@@ -23,6 +24,12 @@ export default function ChallengeItem({ navigation, amount, shuffleTime ,minimum
     }
   };
 
+  useEffect(() => {
+    const dateTime = moment(shuffleTime, 'MM/DD/YYYY, h:mm:ss A');
+    const formattedDateTimeValue = moment(dateTime).format('DD.MM.YYYY h.mmA');
+    setFormattedDateTime(formattedDateTimeValue);
+  }, []);
+
   return (
     <View style={styles.mainContainer}>
         <View style={styles.logo}>
@@ -32,7 +39,7 @@ export default function ChallengeItem({ navigation, amount, shuffleTime ,minimum
         </View>
         <View style={styles.textComponents}>
           <Text style={styles.textHeading}>{amount}</Text>
-          <Text style={styles.playerCount}>{shuffleTime}</Text>
+          <Text style={styles.playerCount}>Available Until {formattedDateTime}</Text>
           <View style={styles.subLogo}>
             <Image style={styles.logoCheck}
               source={require("../../assets/images/Check-icon-green.png")}
@@ -81,6 +88,8 @@ const styles = StyleSheet.create({
     },
     playerCount: {
       color: AppTheme.colors.greySubText,
+      fontSize: 17,
+      fontWeight: "500",
       marginVertical: 5,
     },
     minimumPlayers: {
