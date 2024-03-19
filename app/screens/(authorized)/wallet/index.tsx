@@ -30,6 +30,8 @@ export default function WalletScreen({ navigation }) {
   const [xrpPriceInUSDOllars, setXrpPriceInUSDollars] = useState(0);
   const [transactionList, setTransactionList] = useState([]);
 
+  const [plyaerID, setPlayerID] = useState("");
+
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
@@ -38,6 +40,8 @@ export default function WalletScreen({ navigation }) {
   const getCredentials = async () => {
     try {
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
+      const playerId = await AsyncStorage.getItem("playerId");
+      setPlayerID(playerId);
       console.log("XRP Address: ", XRP_Address);
       const secret = await AsyncStorage.getItem("secret");
       console.log("Secret: ", secret);
@@ -60,7 +64,8 @@ export default function WalletScreen({ navigation }) {
       return null;
     }
   }
-  async function getTransactionHistory(playerID) {
+  
+  async function getTransactionHistory(playerID){
     var acountService = new AccountService();
     var msgObj = {
       Player_ID: playerID
@@ -138,7 +143,7 @@ export default function WalletScreen({ navigation }) {
       };
       fetchData();
       //ToDo: get player id
-      getTransactionHistory(10002);
+      getTransactionHistory(10001);
     }
     );
 
@@ -161,7 +166,7 @@ export default function WalletScreen({ navigation }) {
   }, [navigation]);
 
     const renderItem = ({ item }) => (
-      <View style={styles.transactionItem}>
+      <View key={item.key} style={styles.transactionItem}>
         <Text>{item.date}</Text>
         <Text>{item.gameId}</Text>
         <Text>{item.amount} EVR</Text>
@@ -219,6 +224,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 10,
     backgroundColor: AppTheme.colors.bottomNavGreen,
+    marginBottom: 150,
   },
   headingText: {
     fontSize: 30,

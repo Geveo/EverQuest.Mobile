@@ -99,7 +99,7 @@ export default class XummApiService {
     // }
   }
 
-  async buyUriToken(playerAddress: string, amount: string, uriTokenId: any) {
+  async buyUriToken(playerAddress: string, amount: string, uriTokenId: any, gameid: number) {
     // amount = 1 = 0.000001 XAH
     var acountService = new AccountService();
     try {
@@ -136,11 +136,11 @@ export default class XummApiService {
       console.log('Payment request submission completed.');
 
       var transactionObject = {
-        Player_ID: 10002,
-        Game_ID: 1138,
+        Player_ID: 10001,
+        Game_ID: gameid,
         Transaction_Date: new Date().toISOString(),
         URI_Token_Index: uriTokenId,
-        Amount: "5"
+        Amount: "20"
       }
       var response = await acountService.addFundsTransactions(transactionObject);
       console.log(response)
@@ -149,7 +149,7 @@ export default class XummApiService {
     }
   }
 
-  async SellUriToken(amount: string, uriTokenId: any) {
+  async SellUriToken(amount: string, uriTokenId: any, gameid: number) {
     // amount = 1 = 0.000001 XAH
     var acountService = new AccountService();
     try {
@@ -187,8 +187,8 @@ export default class XummApiService {
       console.log('Payment request submission completed.');
 
       var transactionObject = {
-        Player_ID: 10002,
-        Game_ID: 1130,
+        Player_ID: 10001,
+        Game_ID: gameid,
         URI_Token_Index: uriTokenId,
         Amount: "1"
       }
@@ -235,7 +235,7 @@ export default class XummApiService {
       console.log((await payload).created.next.always);
       await payload;
       var transactionObject = {
-        Player_ID: "10002",
+        Player_ID: "10001",
         Transaction_Date: new Date,
         Description: "Payment for Test Leaugue 5 - 20 EVR game.",
         Amount: 5

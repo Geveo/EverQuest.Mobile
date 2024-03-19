@@ -41,6 +41,7 @@ export default function Tournament({ navigation, route }) {
 
   const [shuffleTime, setShuffleTime] = useState(null);
   const [shuffleTimePassed, setShuffleTimePassed] = useState(false);
+  const [playerID, setPlayerID] = useState(0);
 
   const toAddress = "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y";
   const gameValue = "1"; // Amount of EVR to send
@@ -53,6 +54,9 @@ export default function Tournament({ navigation, route }) {
       console.log("Secret: ", secret);
       setFromAddress(XRP_Address);
       setSecret(secret);
+      const playerId = await AsyncStorage.getItem("playerId");
+      const playerIdInt = parseInt(playerId, 10); // Convert playerId to integer
+      setPlayerID(playerIdInt);
       return { XRP_Address, secret };
     } catch (error) {
       console.error("Error getting credentials:", error);
@@ -225,7 +229,7 @@ export default function Tournament({ navigation, route }) {
     try {
       console.log("Before getting joinedGames");
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=3472`
+        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=${playerID}`
       );
       console.log("After getting joinedGames", response.data);
       if (response.data) {
@@ -361,7 +365,7 @@ export default function Tournament({ navigation, route }) {
                 GameID={game.GameID}
                 VQGameID={game.VQGameID}
                 VQPlayerID={game.VQPlayerID}
-                
+                playerID={playerID}
               />
             ))}
         </ScrollView>

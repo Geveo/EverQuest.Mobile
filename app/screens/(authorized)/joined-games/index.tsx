@@ -29,7 +29,7 @@ export default function AllJoinedGamespage({ navigation }) {
 
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
-  const [playerID, setPlayerID] = useState("");
+  const [playerID, setPlayerID] = useState(0);
   const [xrpaddress, setXrpAddress] = useState("");
   // const [hasWonLeague, setHasWonLeague] = useState(false);
   // const [hasLeagueCompleted, setHasLeagueCompleted] = useState(false);
@@ -43,7 +43,8 @@ export default function AllJoinedGamespage({ navigation }) {
     try {
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
       const playerId = await AsyncStorage.getItem("playerId");
-      setPlayerID(playerId);
+      const playerIdInt = parseInt(playerId, 10); // Convert playerId to integer
+      setPlayerID(playerIdInt);
       setXrpAddress(XRP_Address);
       console.log("Player ID:", playerId);
     } catch (error) {
@@ -75,7 +76,7 @@ export default function AllJoinedGamespage({ navigation }) {
     try {
       console.log("Before getting joinedGames");
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=10002`
+        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=${playerID}`
       );
       console.log("After getting joinedGames", response.data);
       if (response.data) {
@@ -122,6 +123,7 @@ export default function AllJoinedGamespage({ navigation }) {
                   VQPlayerID={game.VQPlayerID}
                   hasWonLeague={hasWonLeague} // Pass the determined status here
                   hasLeagueCompleted={hasLeagueCompleted}
+                  playerID={playerID}
                 />
               );
             })}

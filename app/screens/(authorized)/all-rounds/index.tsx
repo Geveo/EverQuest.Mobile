@@ -30,7 +30,7 @@ const {
 
 
 export default function AllRoundsPage({ navigation, route }) {
-  const { gameName, LeagueName, GameID, VQGameID, VQPlayerID } = route.params;
+  const { gameName, LeagueName, GameID, VQGameID, VQPlayerID, playerID } = route.params;
 
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [rightFlag, setRightFlag] = useState(true);
@@ -43,7 +43,6 @@ export default function AllRoundsPage({ navigation, route }) {
   const [isFinished, setIsFinished] = useState(false);
   const [sucessful, setSucessful] = useState(true);
   const [hasWonRound, setHasWonRound] = useState(false);
-  const [playerID, setPlayerID] = useState("");
   const [xrpaddress, setXrpAddress] = useState("");
   const [uriTokenIndex, setUriTokenIndex] = useState("");
 
@@ -95,7 +94,6 @@ export default function AllRoundsPage({ navigation, route }) {
     try {
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
       const playerId = await AsyncStorage.getItem("playerId");
-      setPlayerID(playerId);
       setXrpAddress(XRP_Address);
       console.log("Player ID:", playerId);
     } catch (error) {
@@ -142,9 +140,11 @@ export default function AllRoundsPage({ navigation, route }) {
   const getAllgames = async () => {
     try {
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getTippingsByUser?vqGameID=${VQGameID}&vqPlayerID=${VQPlayerID}&userID=3472`
+        `${GameEngineApiParameters.URL}/api/games/getTippingsByUser?vqGameID=${VQGameID}&vqPlayerID=${VQPlayerID}&userID=${playerID}`
       );
       setRoundMatches(response.data.AvailableTippings);
+      console.log("Response from getAllgames:", response.data.AvailableTippings);
+      
       //console.log("Response from getAllgames:", response.data.AvailableTippings);
 
       response.data.AvailableTippings.forEach((tipping) => {
@@ -243,14 +243,14 @@ export default function AllRoundsPage({ navigation, route }) {
   const getGameResults = async () => {
     try {
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=${VQGameID}&userID=3472`
+        `${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=${VQGameID}&userID=${playerID}`
       );
 
       const relevantGame = response.data.GameHistory.filter(
         (game) =>
           game.vqgameid === VQGameID &&
           game.roundnumber === roundNumber &&
-          game.userid === 3472
+          game.userid === playerID
       );
       console.log("Relevant game:", relevantGame);
 
@@ -271,7 +271,7 @@ export default function AllRoundsPage({ navigation, route }) {
         (game) =>
           game.roundnumber === maxRoundNumber &&
           game.IsVQWin === true &&
-          game.userid === 3472
+          game.userid === playerID
       );
       if (userWins.length > 0) {
         setHasWonVQGame(true);
@@ -299,7 +299,7 @@ export default function AllRoundsPage({ navigation, route }) {
   const confirmTippings = async (matchTeamId) => {
     try {
       const response = await axios.post(
-        `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${VQGameID}&matchTeamId=${matchTeamId}&vqPlayerID=${VQPlayerID}&userID=3472`
+        `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${VQGameID}&matchTeamId=${matchTeamId}&vqPlayerID=${VQPlayerID}&userID=${playerID}`
       );
       console.log("Response from confirmTippings:", response);
     } catch (error) {
@@ -334,7 +334,7 @@ export default function AllRoundsPage({ navigation, route }) {
   const getwinningState = async () => {
     try {
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=3472`
+        `${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=${playerID}`
       );
       const winningState = response.data.Feeds.filter(
         (game) => game.VQGameID === VQGameID && game.VQPlayerID === VQPlayerID
@@ -355,39 +355,14 @@ export default function AllRoundsPage({ navigation, route }) {
     }
   };
 
-      
-
-  // const confirmTippings = async (matchTeamId) => {
-  //   try {
-  //     const response = await axios.post(
-  //       `${GameEngineApiParameters.URL}/api/games/SaveTippings?vqGameId=${VQGameID}&matchTeamId=${matchTeamId}&vqPlayerID=${VQPlayerID}&userID=3472`
-  //     );
-  //     console.log("Response from confirmTippings:", response);
-  //   } catch (error) {
-  //     console.log("Error confirming tippings:", error);
-  //   }
-  // };
-
-  // const handleSubmitButtonPress = async () => {
-  //   if (selectedCountry === "") {
-  //     console.log("Please select a country");
-  //     return;
-  //   }
-  //   console.log("Selected country:", selectedCountry);
-  //   console.log("Selected country ID:", selectedCountryId);
-
-  //   await confirmTippings(selectedCountryId);
-  //   setSucessful(true);
-  // };
-
   async function getTransactionStatus(){
     try {
       var acountService = new AccountService();
-      var msgObj = {
-        Player_ID: 10001,
-        Game_ID: GameID
-      }
-      var response = await acountService.getTransactionHistory(msgObj);
+    var msgObj = {
+      Player_ID: playerID,
+      Game_ID: GameID
+    }
+    var response = await acountService.getTransactionHistory(msgObj);
 
       if (response.data[0].Transaction_Status === TransactionStatus.JOINED ) {
         setSellButtonText("Sell Game Token");
@@ -405,7 +380,7 @@ export default function AllRoundsPage({ navigation, route }) {
   const updateTransactionStatus = async (status) => {
       var acountService = new AccountService();
       var msgObj = {
-        Player_ID: parseInt(playerID, 10),
+        Player_ID: playerID,
         Game_ID: GameID,
         Transaction_Status: status
       }
@@ -432,7 +407,7 @@ export default function AllRoundsPage({ navigation, route }) {
       var uriTokenIndex = transactionRecord.URI_Token_Index;
       setUriTokenIndex(uriTokenIndex);
       var xummApiService = new XummApiService();
-      xummApiService.SellUriToken(totaWinninglPrice.toString(), uriTokenIndex);
+      xummApiService.SellUriToken(totaWinninglPrice.toString(), uriTokenIndex, gameId);
       
     }
   }
@@ -478,16 +453,35 @@ export default function AllRoundsPage({ navigation, route }) {
   }
   
 
+  // useEffect(() => {
+  //   getCredentials();
+  //   getGameResults();
+  //   getShuffleTime();
+  //   getAllgames();
+  //   getTotalWinningPrice();
+  //   getwinningState();
+  //   //getTransactionStatus();
+    
+  // }, []);
+
   useEffect(() => {
-    //getVQRelatedData();
-    getGameResults();
-    getShuffleTime();
-    getAllgames();
-    getTotalWinningPrice();
-    getwinningState();
-    getTransactionStatus();
-    getCredentials();
-  }, [roundNumber]);
+    const fetchData = async () => {
+      await getCredentials().then(() => {
+        getAllgames();
+      });
+      getAllgames();
+      getGameResults();
+      getShuffleTime();
+      getTotalWinningPrice();
+      getwinningState();
+      //getTransactionStatus();
+    };
+    fetchData();
+    // Add any dependencies if needed inside the array [] after fetchData()
+  }, []);
+
+  
+
 
   const onSellButtonPress = async () => {
     if(sellButtonText === "Sell Game Token"){
@@ -568,7 +562,7 @@ export default function AllRoundsPage({ navigation, route }) {
             <View style={styles.tabContent1}>
               {shuffleTimePassed ? (
                 <Text style={styles.textResult}>
-                  Lock down time has been passed
+                  Lock down time has passed.
                 </Text>
               ) : (
                 <>
@@ -582,7 +576,7 @@ export default function AllRoundsPage({ navigation, route }) {
                     <>
                       {shuffleTime && (
                         <Text style={styles.textResult}>
-                          Voting will be close in:{" "}
+                          Voting will be closed in:{" "}
                           {`${shuffleTime.toLocaleDateString()} ${shuffleTime.toLocaleTimeString(
                             [],
                             { hour: "2-digit", minute: "2-digit" }
@@ -607,7 +601,8 @@ export default function AllRoundsPage({ navigation, route }) {
                   .filter((match) => match.RoundNumber === roundNumber)
                   .map((match, index) => {
                     return (
-                      <View key={index}>
+                      <>
+                      <View key={index} style={styles.countryContainer}>
                         <TouchableOpacity
                           onPress={() => {
                             handleCountryPress(
@@ -630,7 +625,7 @@ export default function AllRoundsPage({ navigation, route }) {
                             }
                           />
                         </TouchableOpacity>
-                        <Text style={styles.vsTExt}> vs </Text>
+                        <Text style={styles.vsTExt}> Vs </Text>
 
                         <TouchableOpacity
                           onPress={() => {
@@ -654,8 +649,10 @@ export default function AllRoundsPage({ navigation, route }) {
                             }
                           />
                         </TouchableOpacity>
-                        <View style={styles.horizontalDivider} />
                       </View>
+                      <View style={styles.horizontalDivider} />
+                      </>
+                      
                     );
                   })}
               </ScrollView>
@@ -917,15 +914,14 @@ const styles = StyleSheet.create({
   },
   vsTExt: {
     alignSelf: "center",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "600",
     color: AppTheme.colors.textGrey,
   },
   horizontalDivider: {
     borderBottomColor: AppTheme.colors.buttonGreen,
     borderBottomWidth: 0.5,
-    marginVertical: 30,
-    width: "80%",
+    width: "75%",
     alignSelf: "center",
   },
   imageStyle: {
@@ -966,5 +962,13 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.white,
     fontWeight: "600",
     alignSelf: "center",
+  },
+  countryContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    marginVertical: 20,
+    marginHorizontal: 15,
   },
 });

@@ -35,34 +35,35 @@ export default function CountryComponent({
 const styles = StyleSheet.create({
   mainContainer: {
     marginVertical: 5,
-    width: 350,
-    height: 70,
+    width: 150,
+    height: 100,
     backgroundColor: AppTheme.colors.white,
     borderWidth: 2,
     borderColor: AppTheme.colors.tabGrey,
-    alignItems: "center",
-    alignSelf: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: 20,
-    borderRadius: 10,
+    borderRadius: 15,
   },
   activeContainer: {
     backgroundColor: AppTheme.colors.emailGreen, // Change background color when active
     borderColor: AppTheme.colors.emailGreen, // Change border color when active
   },
   countryContainer: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
+    flexDirection: "column",
+    justifyContent: "center",
     alignItems: "center",
   },
   countryImage: {
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
     width: 30,
     height: 30,
     borderRadius: 30,
-    marginRight: 30,
   },
   countryName: {
+    alighnSelf: "center",
+    marginTop: 15,
     color: AppTheme.colors.black,
     fontSize: 16,
     fontWeight: "bold",

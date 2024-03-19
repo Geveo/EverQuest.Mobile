@@ -19,6 +19,7 @@ export default function JoinedGame({
   VQPlayerID,
   hasWonLeague = false,
   hasLeagueCompleted = true,
+  playerID,
 }) {
   const gameContainerStyle = [
     styles.gameContainer,
@@ -36,6 +37,7 @@ export default function JoinedGame({
           GameID,
           VQGameID,
           VQPlayerID,
+          playerID,
         })
       }
     >{

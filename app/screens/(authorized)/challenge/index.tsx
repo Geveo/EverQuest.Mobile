@@ -45,7 +45,7 @@ export default function Challenge({ navigation, route }) {
   const [fromAddress, setFromAddress] = useState("");
   const [playerXrpAddress, setPlayerXrpAddress] = useState("");
   const [secret, setSecret] = useState("");
-  const [playerId, setPlayerId] = useState("");
+  const [playerId, setPlayerId] = useState(0);
 
   const countryImages = {
     "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
@@ -70,6 +70,7 @@ export default function Challenge({ navigation, route }) {
     "Brazil": require("../../../assets/images/Brazil.png"),
     "Portugal": require("../../../assets/images/Portugal.png"),
     "Spain": require("../../../assets/images/Spain.png"),
+    "Germany": require("../../../assets/images/Germany.png"),
   };
   const { gameType, gameName, gameId } = route.params;
 
@@ -131,7 +132,7 @@ export default function Challenge({ navigation, route }) {
     try {
       console.log("Before selecting a country");
       const response = await axios.post(
-        `${GameEngineApiParameters.URL}/api/games/saveGameParticipants?gameId=${gameId}&userId=10002&newMatchTeamId=${selectedCountryId}&gameAmount=${gameAmount}`
+        `${GameEngineApiParameters.URL}/api/games/saveGameParticipants?gameId=${gameId}&userId=${playerId}&newMatchTeamId=${selectedCountryId}&gameAmount=${gameAmount}`
       );
       console.log("After selecting a country", response.data);
       if (response.data && response.data.gameParticipantId) {
@@ -205,7 +206,8 @@ export default function Challenge({ navigation, route }) {
       setFromAddress(XRP_Address);
       setPlayerXrpAddress(XRP_Address);
       setSecret(secret);
-      setPlayerId(playerID);
+      const playerIdInt = parseInt(playerID, 10); // Convert playerId to integer
+      setPlayerId(playerIdInt);
       return { XRP_Address, secret };
     } catch (error) {
       console.error("Error getting credentials:", error);
@@ -299,7 +301,7 @@ export default function Challenge({ navigation, route }) {
 
       var uRITokenID = response.data.result;
       var xummApiService = new XummApiService();
-      xummApiService.buyUriToken(playerXrpAddress, "20", uRITokenID);
+      xummApiService.buyUriToken(playerXrpAddress, "20", uRITokenID, gameId);
       return response.data.result; 
     } catch (error) {
       console.error('Error:', error);
@@ -401,7 +403,8 @@ export default function Challenge({ navigation, route }) {
           <ScrollView style={styles.tabContent1}>
             {roundMatches.map((match, index) => {
               return (
-                <View key={index}>
+                <View key={index} style={styles.countrySideBySide}>
+                  <View style={styles.countrySideBySideInside}>
                   <TouchableOpacity
                     onPress={() => {
                       handleCountryPress(
@@ -436,6 +439,7 @@ export default function Challenge({ navigation, route }) {
                       }
                     />
                   </TouchableOpacity>
+                  </View>
                   <View style={styles.horizontalDivider} />
                 </View>
               );
@@ -625,9 +629,18 @@ const styles = StyleSheet.create({
   horizontalDivider: {
     borderBottomColor: AppTheme.colors.buttonGreen,
     borderBottomWidth: 0.5,
-    marginVertical: 30,
+    marginVertical: 10,
     width: "80%",
     alignSelf: "center",
+  },
+  countrySideBySide: {
+    
+  },
+  countrySideBySideInside: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 20,
+    marginHorizontal: 20,
   },
 });
 
