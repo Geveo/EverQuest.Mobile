@@ -7,8 +7,13 @@ import EQBottomNavigationBar, {
 import AppTheme from "../../../helpers/theme";
 import SCButton from "../../../components/button/button";
 import HotPocketClientService from "../../../services/hp-client-service";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home({ navigation }) {
+
+  const [playerID, setPlayerID] = useState(0);
+  const [xrpaddress, setXrpAddress] = useState("");
+
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -52,6 +57,23 @@ export default function Home({ navigation }) {
     return true;
   }
 
+  const getCredentials = async () => {
+    try {
+      const XRP_Address = await AsyncStorage.getItem("XRP_Address");
+      const playerId = await AsyncStorage.getItem("playerId");
+      const playerIdInt = parseInt(playerId, 10); // Convert playerId to integer
+      setPlayerID(playerIdInt);
+      setXrpAddress(XRP_Address);
+      console.log("Player ID:", playerId);
+    } catch (error) {
+      console.error("Error getting credentials:", error);
+    }
+  };
+
+  useEffect(() => {
+    getCredentials();
+  }, []);
+
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <Text style={styles.headingText}>EverQuest</Text>
@@ -81,7 +103,7 @@ export default function Home({ navigation }) {
         <SCButton
           text="Joined Games"
           showRightArrow={true}
-          onTap={() => navigation.navigate("AllJoinedGamespage")}
+          onTap={() => navigation.navigate("AllJoinedGamespage", { playerID })}
         />
       </View>
       <EQBottomNavigationBar
