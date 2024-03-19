@@ -45,7 +45,8 @@ export default function Challenge({ navigation, route }) {
   const [fromAddress, setFromAddress] = useState("");
   const [playerXrpAddress, setPlayerXrpAddress] = useState("");
   const [secret, setSecret] = useState("");
-  const [playerId, setPlayerId] = useState(0);
+  const [playerID, setPlayerId] = useState(0);
+  const [gameAmount, setGameAmount] = useState(0);
 
   const countryImages = {
     "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
@@ -74,7 +75,7 @@ export default function Challenge({ navigation, route }) {
   };
   const { gameType, gameName, gameId } = route.params;
 
-  const gameAmount = String(gameType.replace('$', '')); 
+  //const gameAmount = String(gameType.replace('$', '')); 
 
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
@@ -112,14 +113,17 @@ export default function Challenge({ navigation, route }) {
   };
 
   const getCountryDetails = async () => {
+    console.log("Getting country details for player: ", playerID, " Game Id: ", gameId)
     try {
-      console.log("Before getting countries");
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/GetMatchesForRound?gameId=${gameId}&userId=10002&gameParticipantID=0`
+        `${GameEngineApiParameters.URL}/api/games/GetMatchesForRound?gameId=${gameId}&userId=${playerID}&gameParticipantID=0`
       );
       console.log("After getting countries", response.data);
       if (response.data && response.data.RoundMatches) {
         setRoundMatches(response.data.RoundMatches);
+        var amount = response.data.RoundMatches[0].GameAmount;
+        const value = Number(amount.split(" ")[0]);
+        setGameAmount(value)
       } else {
         console.log("RoundMatches not found in response");
       }
@@ -129,10 +133,10 @@ export default function Challenge({ navigation, route }) {
   };
 
   const submitUserResponse = async () => {
+    console.log("saving gameparticipation: ", playerID, " ", gameId, " ", gameAmount, " ", selectedCountryId)
     try {
-      console.log("Before selecting a country");
       const response = await axios.post(
-        `${GameEngineApiParameters.URL}/api/games/saveGameParticipants?gameId=${gameId}&userId=${playerId}&newMatchTeamId=${selectedCountryId}&gameAmount=${gameAmount}`
+        `${GameEngineApiParameters.URL}/api/games/saveGameParticipants?gameId=${gameId}&userId=${playerID}&newMatchTeamId=${selectedCountryId}&gameAmount=${gameAmount}`
       );
       console.log("After selecting a country", response.data);
       if (response.data && response.data.gameParticipantId) {
@@ -191,11 +195,6 @@ export default function Challenge({ navigation, route }) {
   //   }
   // };
 
-
-
-  const toAddress = "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y";
-  const gameValue = "20"
-
   const getCredentials = async () => {
     try {
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
@@ -214,62 +213,6 @@ export default function Challenge({ navigation, route }) {
     }
   };
 
-    //saving the users choise and then joining the user into the game
-    async function sendXRP(fromAddress, secret, toAddress, gameValue) {
-      console.log("Sending XRP");
-      
-      try {
-        
-          const client = new xrpl.Client("wss://xahau-test.net/");
-          console.log("Client connected:", client);
-          await client.connect();
-  
-          // Autofill the transaction to get the proper sequence, fee, and lastLedgerSequence
-          const preparedTx = await client.autofill({
-            TransactionType: "Payment",
-            Account: fromAddress,
-            Amount: {
-              currency: "EVR", // The currency code, e.g., "EVR"
-              issuer: "rM1fW221wzo8DW3CvXBgmCVahQ8cxxfLNz", // The issuer's address of the currency
-              value: gameValue, // The amount of the currency to send
-            }, // Convert the amount to drops
-            Destination: toAddress,
-          });
-  
-          // Sign the transaction with the secret key of the sender
-          //const {signedTransaction, id} = xrpl.sign(preparedTx, secret)
-  
-          const wallet = xrpl.Wallet.fromSeed(secret, { algorithm: xrpl.ECDSA });
-  
-          //console.log(wallet);
-  
-          // Submit the signed blob to the ledger
-          const result = await client.submitAndWait(preparedTx, {
-            autofill: true, // Adds in fields that can be automatically set like fee and last_ledger_sequence
-            wallet: wallet,
-          });
-  
-          console.log("Transaction result:", result);
-  
-          if (result.result.meta.TransactionResult === "tesSUCCESS") {
-            //navigation.navigate("Challenge");
-            //console.log(`Transaction succeeded: https://testnet.xrpl.org/transactions/${id}`)
-          } else {
-            console.log(
-              "Transaction failed:",
-              result.result.meta.TransactionResult
-            );
-          }
-  
-          // Disconnect from the client
-          await client.disconnect();
-        //}
-      } catch (error) {
-        console.error("Error:", error);
-        // Handle the error (e.g., show an error message to the user)
-      }
-    }
-
   const stringToHex = (str) => {
     let hex = '';
     for (let i = 0; i < str.length; i++) {
@@ -280,7 +223,7 @@ export default function Challenge({ navigation, route }) {
 
   async function makePayment() {
     const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/createAndSellUriToken`;
-    var uniqueId = `${playerXrpAddress}${gameId}`
+    var uniqueId = `${playerXrpAddress}${gameId}${playerID}1235687852321`
     
     const hexString = stringToHex(uniqueId);
     console.log("Hexadecimal string:", hexString);
@@ -292,7 +235,7 @@ export default function Challenge({ navigation, route }) {
       amount: {
         "currency": TransactionConstants.CURRENCY,
         "issuer": TransactionConstants.ISSUER_ADDRESS,
-        "value": "20"
+        "value": gameAmount.toString()
       }
     };
     try {
@@ -301,7 +244,7 @@ export default function Challenge({ navigation, route }) {
 
       var uRITokenID = response.data.result;
       var xummApiService = new XummApiService();
-      xummApiService.buyUriToken(playerXrpAddress, "20", uRITokenID, gameId);
+      xummApiService.buyUriToken(playerXrpAddress, gameAmount.toString(), uRITokenID, gameId);
       return response.data.result; 
     } catch (error) {
       console.error('Error:', error);
@@ -317,6 +260,7 @@ export default function Challenge({ navigation, route }) {
       makePayment();
       //sendXRP(fromAddress, secret, toAddress, gameValue);
       console.log("GameParticipantID", gameParticipantID);
+      navigation.replace("AllJoinedGamespage", {playerID});
     };
 
     // const getTotalWinningAmount = async () => {

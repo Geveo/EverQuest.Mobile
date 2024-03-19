@@ -140,7 +140,7 @@ export default class XummApiService {
         Game_ID: gameid,
         Transaction_Date: new Date().toISOString(),
         URI_Token_Index: uriTokenId,
-        Amount: "20"
+        Amount: amount.toString
       }
       var response = await acountService.addFundsTransactions(transactionObject);
       console.log(response)
