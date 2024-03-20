@@ -26,7 +26,7 @@ export default function ChallengeItem({ navigation, amount, shuffleTime ,minimum
 
   useEffect(() => {
     const dateTime = moment(shuffleTime, 'MM/DD/YYYY, h:mm:ss A');
-    const formattedDateTimeValue = moment(dateTime).format('DD.MM.YYYY h.mmA');
+    const formattedDateTimeValue = moment(dateTime).format('DD.MM.YYYY - h.mmA');
     setFormattedDateTime(formattedDateTimeValue);
   }, []);
 
@@ -39,7 +39,7 @@ export default function ChallengeItem({ navigation, amount, shuffleTime ,minimum
         </View>
         <View style={styles.textComponents}>
           <Text style={styles.textHeading}>{amount}</Text>
-          <Text style={styles.playerCount}>Available Until {formattedDateTime}</Text>
+          <Text style={styles.playerCount}>Available Until : {formattedDateTime}</Text>
           <View style={styles.subLogo}>
             <Image style={styles.logoCheck}
               source={require("../../assets/images/Check-icon-green.png")}

@@ -25,7 +25,7 @@ const {
 } = require(".../../../app/constants/constants");
 
 export default function WalletScreen({ navigation }) {
-  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(true);
   const [availableFunds, setAvailableFunds] = useState(0);
   const [xrpPriceInUSDOllars, setXrpPriceInUSDollars] = useState(0);
   const [transactionList, setTransactionList] = useState([]);
@@ -73,6 +73,7 @@ export default function WalletScreen({ navigation }) {
     acountService.getTransactionHistory(msgObj)
       .then((response) => {
         if (response.data != undefined) {
+          setShowLoadingIndicator(false);
           const transactions = response.data.map((item, index) => ({
             key: index,
             date: item.Transaction_Date.substring(0, 10),

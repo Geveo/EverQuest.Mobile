@@ -78,7 +78,7 @@ export default function Home({ navigation }) {
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <Text style={styles.headingText}>EverQuest</Text>
       <Text style={styles.welcomeText}>Welcome</Text>
-      <Text style={styles.infoTextHeading}>Beat the rest - GameQuest</Text>
+      <Text style={styles.infoTextHeading}>Beat the rest - EverQuest</Text>
       <Text style={styles.infoText}>
         EverQuest is a brand new concept
       </Text>

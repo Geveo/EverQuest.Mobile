@@ -4,17 +4,22 @@ import {
   StyleSheet,
   Text,
   View,
+  Image
 } from "react-native";
 import AppTheme from "../../helpers/theme";
 
-export default function GameItem({ gameName, gameStatus, gameStartDate, gameEndDate }) {
+export default function GameItem({ gameName, gameStatus, gameStartDate, gameEndDate , ImageSource}) {
+
+  const Cricket = require("../../assets/images/CricketLeague.png");
+  const FootBall = require("../../assets/images/FootBallLeague.png");
 
   return (
     <View style={styles.gameContainer}>
         <View style={styles.gameImage}>
-          {/* <Image
-            source={gameImage}
-          /> */}
+        <Image
+              style={styles.gameInsideImage}
+              source={ImageSource}
+            />
         </View>
         <View>
         <View style={styles.gameText}>
@@ -47,6 +52,15 @@ const styles = StyleSheet.create({
         width: 80,
         borderRadius: 10,
         marginRight: 20,
+        alignItems: "center",
+        justifyContent: "center",
+      },
+      gameInsideImage:{
+        height: 80,
+        width: 80,
+        borderRadius: 10,
+        borderWidth: 0.8,
+        borderColor: AppTheme.colors.black,
       },
       gameText: {
     

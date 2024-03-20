@@ -22,6 +22,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import JoinedGame from "../../../components/joined-game/joined-game";
+import AccountService from "../../../services/services-domain/account-service";
 const xrpl = require("xrpl");
 const {
   GameEngineApiParameters,
@@ -30,7 +31,7 @@ const {
 
 // Define the Tournament component
 export default function Tournament({ navigation, route }) {
-  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(true);
   const [challenges, setChallenges] = useState([]);
   const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
   const { title, gameId } = route.params;
@@ -42,6 +43,8 @@ export default function Tournament({ navigation, route }) {
   const [shuffleTime, setShuffleTime] = useState(null);
   const [shuffleTimePassed, setShuffleTimePassed] = useState(false);
   const [playerID, setPlayerID] = useState(0);
+
+  const [userName, setUsername] = useState("");
 
   const toAddress = "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y";
   const gameValue = "1"; // Amount of EVR to send
@@ -199,6 +202,7 @@ export default function Tournament({ navigation, route }) {
 
     getAllChallenges(gameId);
     joinedGames();
+    getUsername();
     //});
     // Return the unsubscribe function to clean up the listener
     //return unsubscribe;
@@ -243,6 +247,21 @@ export default function Tournament({ navigation, route }) {
     }
   };
 
+  async function getUsername() {
+    try {
+      var acountService = new AccountService();
+      const XRP_Address = await AsyncStorage.getItem("XRP_Address");
+      var response = await acountService.getPlayerName(XRP_Address);
+      if(response){
+        setShowLoadingIndicator(false);
+      }
+      setUsername(response)
+    }
+    catch (error) {
+      console.error("Error occurred while getting username:", error);
+    }
+  }
+
   //sendXRP(fromAddress, secret, toAddress, amount).catch(console.error)
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
@@ -281,7 +300,7 @@ export default function Tournament({ navigation, route }) {
               // }}
               source={require("../../../assets/images/Avatar.png")}
             />
-            <Text style={styles.userName}>Test User</Text>
+            <Text style={styles.userName}>{userName}</Text>
             {/* <Text style={styles.userEmail}>test@test.com</Text> */}
           </View>
           <View style={styles.rightSide}>

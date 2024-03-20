@@ -23,10 +23,18 @@ const { GameEngineApiParameters } = require(".../../../app/constants/constants")
 
 
 export default function GamesList({ navigation }) {
-  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(true);
   const [games, setGames] = useState([]);
   const route = useRoute() as RouteProp<any, any>
   const { sportName } = route.params;
+
+
+
+  const LeagueImages = {
+    "Cricket": require("../../../assets/images/CricketLeague.png"),
+    "Football": require("../../../assets/images/FootBallLeague.png"),
+    "Rugby": require("../../../assets/images/RugbyLeauge.png"),
+  };
 
 
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
@@ -48,6 +56,9 @@ export default function GamesList({ navigation }) {
     try {
       console.log(" Before request: ");
       const response = await axios.get(`${GameEngineApiParameters.URL}/api/games/getLeaguesBySportID?sportID=${sportId}`);
+      if(response){
+        setShowLoadingIndicator(false);
+      }
       //console.log("Response: ", response.data);
       if(Object.keys(response.data).length !== 0) {
         const sortedGames = response.data.Leagues.map(game => ({
@@ -94,6 +105,7 @@ export default function GamesList({ navigation }) {
                 gameStatus={game.IsActive ? "Active" : "Inactive"}
                 gameStartDate={game.StartDate}
                 gameEndDate={game.EndDate}
+                ImageSource={LeagueImages[sportName]}
               />
             </TouchableOpacity>
           ))}</>): (
