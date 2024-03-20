@@ -100,6 +100,30 @@ export default class AccountService {
         var response = await this.submitToContract(messageObj);
         return response;
     }
+
+    async AddTotalWinningRecord(message) {
+        console.log("Creating a transaction record:", message);
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.ADD_TOTAL_WINNING_RECORD,
+            data: message
+        };
+
+        var response = await this.SubmitInputToContract(messageObj);
+        return response;
+    }
+
+    async GetTotalWinnings(message){
+        console.log("Getiing a total winning record:", message);
+        const messageObj = {
+            service: requestConstants.RequestTypes.ACCOUNTS,
+            action: requestConstants.AccountsRequestSubTypes.GET_TOTAL_WINNING_RECORD,
+            data: message
+        };
+
+        var response = await this.submitToContract(messageObj);
+        return response;
+    }
     /*
      * Sample Submit Input To Contract Request.
      */
