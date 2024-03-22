@@ -7,12 +7,12 @@ In EverQuest, while the real teams compete on the field, users of the app can pa
 
 In the test net, during the development and testing we were using an issued currency and creating trustlines for the player accounts, so that player’s accounts can be funded with issued currency. In the main net we are using real evers.  
 
-# Getting Started
-Technology Stack
+# Technology Stack
+
 Dev -
 
-React Native mobile app
-Evernode smart contract (DAPP)
-SQLite3 Data Base
-XRPL and Xaman integration
+-React Native mobile app
+-Evernode smart contract (DAPP)
+-SQLite3 Data Base
+-XRPL and Xaman integration
 
