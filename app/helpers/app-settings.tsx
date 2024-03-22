@@ -1,7 +1,3 @@
-// DEV Settings
-// export default class AppSettings {
-//   static websocketUrl = "wss://dapps-dev.geveo.com:26265";
-// }
 
 // LOCAL Settings
 export default class AppSettings {
