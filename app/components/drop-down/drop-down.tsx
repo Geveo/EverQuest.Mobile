@@ -19,7 +19,7 @@ import AppTheme from '../../helpers/theme';
     { label: 'Round 12', value: '12' },
   ];
 
-  const DropdownComponent = ({ maxRounds, selectedRound, onRoundChange }) => {
+  const DropdownComponent = ({ maxRounds, selectedRound, onRoundChange, roundNumber }) => {
     const [value, setValue] = useState(selectedRound);
 
     const filteredData = data.filter(item => parseInt(item.value) <= maxRounds);
@@ -53,7 +53,7 @@ import AppTheme from '../../helpers/theme';
       maxHeight={300}
       labelField="label"
       valueField="value"
-      placeholder="Select Round..."
+      placeholder={`Round ${roundNumber}`}
       searchPlaceholder="Search..."
       value={value}
       onChange={item => {

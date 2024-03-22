@@ -31,9 +31,9 @@ export default function GamesList({ navigation }) {
 
 
   const LeagueImages = {
-    "Cricket": require("../../../assets/images/CricketLeague.png"),
-    "Football": require("../../../assets/images/FootBallLeague.png"),
-    "Rugby": require("../../../assets/images/RugbyLeauge.png"),
+    "Cricket": require("../../../assets/images/cricket-Icon.png"),
+    "Football": require("../../../assets/images/football-Icon.png"),
+    "Rugby": require("../../../assets/images/rugby-Icon.png"),
   };
 
 

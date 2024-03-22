@@ -22,6 +22,7 @@ import SCButton from "../../../components/button/button";
 import AccountService from "../../../services/services-domain/account-service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import XummApiService from "../../../services/xumm-api-service";
+import moment from 'moment';
 const {
   GameEngineApiParameters,
   TransactionStatus,
@@ -32,7 +33,7 @@ const {
 export default function AllRoundsPage({ navigation, route }) {
   const { gameName, LeagueName, GameID, VQGameID, VQPlayerID, playerID } = route.params;
 
-  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(true);
   const [rightFlag, setRightFlag] = useState(true);
   const [leftFlag, setLeftFlag] = useState(true);
   const [roundNumber, setRoundNumber] = useState(1);
@@ -64,6 +65,7 @@ export default function AllRoundsPage({ navigation, route }) {
   
 
   const [ hasWinningMoneyTaken, setHasWinningMoneyTaken] = useState(false);
+  const [roundClosingTime, setRoundClosingTime] = useState("")
 
   const countryImages = {
     "Sri Lanka": require("../../../assets/images/sri_lanka.png"),
@@ -137,11 +139,14 @@ export default function AllRoundsPage({ navigation, route }) {
     setRightFlag(true);
   };
 
-  const getAllgames = async () => {
+  const getAllgames = async (roundNumber) => {
     try {
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getTippingsByUser?vqGameID=${VQGameID}&vqPlayerID=${VQPlayerID}&userID=${playerID}`
       );
+      if(response){
+        setShowLoadingIndicator(false);
+      }
       setRoundMatches(response.data.AvailableTippings);
       console.log("Response from getAllgames:", response.data.AvailableTippings);
       
@@ -170,6 +175,10 @@ export default function AllRoundsPage({ navigation, route }) {
           hasTipped = true;
           break;
         }
+        else {
+          setSelectedCountry("");
+          setSelectedCountryId(0);
+        }
       }
       setHasTippedRound(hasTipped);
     } catch (error) {
@@ -177,7 +186,7 @@ export default function AllRoundsPage({ navigation, route }) {
     }
   };
 
-  const getShuffleTime = async () => {
+  const getShuffleTime = async (roundNumber) => {
     try {
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getGameInfoByGameID?gameId=${GameID}`
@@ -187,9 +196,16 @@ export default function AllRoundsPage({ navigation, route }) {
         response.data.Rounds[roundNumber-1].LockDownTime
       );
       setShuffleTime(shuffleTimeValue);
+      const dateTime = moment(shuffleTime, 'MM/DD/YYYY, h:mm:ss A');
+      const formattedDateTimeValue = moment(dateTime).format('DD.MM.YYYY  hh.mmA');
+      setRoundClosingTime(formattedDateTimeValue)
+
       const currentTime = new Date();
       if (currentTime > shuffleTime) {
         setShuffleTimePassed(true);
+      }
+      else{
+        setShuffleTimePassed(false);
       }
     } catch (error) {
       console.log("Error fetching data:", error);
@@ -240,7 +256,7 @@ export default function AllRoundsPage({ navigation, route }) {
 */
   }
 
-  const getGameResults = async () => {
+  const getGameResults = async (roundNumber) => {
     try {
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=${VQGameID}&userID=${playerID}`
@@ -252,6 +268,9 @@ export default function AllRoundsPage({ navigation, route }) {
           game.roundnumber === roundNumber &&
           game.userid === playerID
       );
+      if(!relevantGame){
+        setIsFinished(false);
+      }
       console.log("Relevant game:", relevantGame);
 
       if (relevantGame.length === 0) {
@@ -290,7 +309,7 @@ export default function AllRoundsPage({ navigation, route }) {
     else{
       //setHasWonVQGame(false);
     }
-      //console.log("Response from getGameResults:", response.data);
+
     } catch (error) {
       console.log("Error fetching game results:", error);
     }
@@ -317,12 +336,13 @@ export default function AllRoundsPage({ navigation, route }) {
 
     await confirmTippings(selectedCountryId);
     setSucessful(true);
+    setHasTippedRound(true);
   };
 
   const getTotalWinningPrice = async () => {
     try {
       const response = await axios.get(
-        `${GameEngineApiParameters.URL}/api/games/GetWinningAmountPerPlayer?gameAmount=20&totalPlayers=7&totalWinners=1`
+        `${GameEngineApiParameters.URL}/api/games/GetWinningAmountPerPlayer?gameAmount=1&totalPlayers=7&totalWinners=1`
       );
       console.log("Response from getTotalWinningPrice:", response.data);
       setTotalWinningPrice(response.data);
@@ -402,8 +422,9 @@ export default function AllRoundsPage({ navigation, route }) {
       Game_ID: gameId
     }
     var response = await acountService.getTransactionRecord(msgObj);
+    console.log("Transaction Record:", response)
     if (response.success) {
-      var transactionRecord = response.data[0];
+      var transactionRecord = response.data;
       var uriTokenIndex = transactionRecord.URI_Token_Index;
       setUriTokenIndex(uriTokenIndex);
       var xummApiService = new XummApiService();
@@ -430,8 +451,13 @@ export default function AllRoundsPage({ navigation, route }) {
   }
 
   async function claimRewards() {
-    let winningAmount = "5";
-    console.log(xrpaddress);
+    var acountService = new AccountService();
+    var msgObj = {
+      Player_ID: playerID,
+      Game_ID: GameID,
+      Date: new Date().toISOString(),
+      Winning_Amount: totaWinninglPrice.toString()
+    }
     const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/redeemUriToken`;
     const data = {
       adminAccount: TransactionConstants.ADMIN_ADDRESS,
@@ -445,6 +471,7 @@ export default function AllRoundsPage({ navigation, route }) {
     }
     try {
       const response = await axios.post(url, data);
+      await acountService.addTotalWinningRecord(msgObj);
       console.log(response)
     } catch (error) {
       console.error('Error:', error);
@@ -467,11 +494,11 @@ export default function AllRoundsPage({ navigation, route }) {
   useEffect(() => {
     const fetchData = async () => {
       await getCredentials().then(() => {
-        getAllgames();
+        getAllgames(roundNumber);
       });
-      getAllgames();
-      getGameResults();
-      getShuffleTime();
+      getAllgames(roundNumber);
+      getGameResults(roundNumber);
+      getShuffleTime(roundNumber);
       getTotalWinningPrice();
       getwinningState();
       //getTransactionStatus();
@@ -479,6 +506,15 @@ export default function AllRoundsPage({ navigation, route }) {
     fetchData();
     // Add any dependencies if needed inside the array [] after fetchData()
   }, []);
+
+  useEffect(() => {
+      getShuffleTime(roundNumber);
+      getTotalWinningPrice();
+      getAllgames(roundNumber);
+      getGameResults(roundNumber);
+      //getTransactionStatus();
+    // Add any dependencies if needed inside the array [] after fetchData()
+  }, [roundNumber]);
 
   
 
@@ -576,11 +612,8 @@ export default function AllRoundsPage({ navigation, route }) {
                     <>
                       {shuffleTime && (
                         <Text style={styles.textResult}>
-                          Voting will be closed in:{" "}
-                          {`${shuffleTime.toLocaleDateString()} ${shuffleTime.toLocaleTimeString(
-                            [],
-                            { hour: "2-digit", minute: "2-digit" }
-                          )}`}
+                          Voting closed in:{" "}
+                          {`${roundClosingTime}`}
                         </Text>
                       )}
                       <TouchableOpacity
@@ -925,13 +958,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   imageStyle: {
-    marginVertical: 40,
-    width: 200,
-    height: 200,
+    marginVertical: 25,
+    width: 150,
+    height: 150,
     alignSelf: "center",
   },
   GameWinningText: {
-    marginTop: -10,
+    marginTop: 20,
     fontSize: 40,
     fontWeight: "600",
     alignSelf: "center",

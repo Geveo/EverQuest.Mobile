@@ -75,8 +75,6 @@ export default function Challenge({ navigation, route }) {
   };
   const { gameType, gameName, gameId } = route.params;
 
-  //const gameAmount = String(gameType.replace('$', '')); 
-
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
@@ -164,37 +162,6 @@ export default function Challenge({ navigation, route }) {
     }
   };
 
-  // Todo: Complet the API Integration
-
-  // const getVQGameId = async () => {
-  //   try {
-  //     const response = await axios.get(`${GameEngineApiParameters.URL}/api/games/getAllGamesForUser?userId=3472`);
-  //     console.log("After getting VQGameId", response.data);
-  //     if (response.data) {
-  //       const { Feeds } = response.data;
-  //       console.log("Feeds After the response:", Feeds);
-  //       const game = Feeds.find((game) => game.GameID === 2128);
-  //       setVQGameId(game.VQGameID);
-  //     } else {
-  //       console.log("RoundMatches not found in response");
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching game info:', error);
-  //   }
-  // };
-
-  // const getResults = async () => {
-  //   try {
-  //     const response = await axios.get(`${GameEngineApiParameters.URL}/api/games/getPlayerTeamSelectionForRoundsByVQGameID?vqGameId=297&userID=3472`);
-  //     if (response.data) {
-  //       const { GameHistory } = response.data.GameHistory;
-  //       const game = GameHistory.find((user) => user.userid === 3472);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching game info:', error);
-  //   }
-  // };
-
   const getCredentials = async () => {
     try {
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
@@ -223,7 +190,7 @@ export default function Challenge({ navigation, route }) {
 
   async function makePayment() {
     const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/createAndSellUriToken`;
-    var uniqueId = `${playerXrpAddress}${gameId}${playerID}1235687852321`
+    var uniqueId = `${playerXrpAddress}${gameId}${playerID}`
     
     const hexString = stringToHex(uniqueId);
     console.log("Hexadecimal string:", hexString);
@@ -244,7 +211,7 @@ export default function Challenge({ navigation, route }) {
 
       var uRITokenID = response.data.result;
       var xummApiService = new XummApiService();
-      xummApiService.buyUriToken(playerXrpAddress, gameAmount.toString(), uRITokenID, gameId);
+      xummApiService.buyUriToken(playerXrpAddress, gameAmount.toString(), uRITokenID, gameId, playerID);
       return response.data.result; 
     } catch (error) {
       console.error('Error:', error);
@@ -258,21 +225,9 @@ export default function Challenge({ navigation, route }) {
       console.log("Submit button pressed");
       submitUserResponse();
       makePayment();
-      //sendXRP(fromAddress, secret, toAddress, gameValue);
       console.log("GameParticipantID", gameParticipantID);
       navigation.replace("AllJoinedGamespage", {playerID});
     };
-
-    // const getTotalWinningAmount = async () => {
-    //   const url = `${TransactionConstants.URI_TOKEN_TNX_URL}/api/games/GetWinningAmountPerPlayer?gameAmount=20&totalPlayers=7&totalWinners=1`;
-    //   try {
-    //     const response = await axios.get(url);
-    //     console.log(response)
-    //   } catch (error) {
-    //     console.error('Error:', error);
-    //     throw error;
-    //   }
-    // };
 
   useEffect(() => {
     getCredentials();

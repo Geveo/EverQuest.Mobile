@@ -2,9 +2,9 @@ const { sign, derive, XrplDefinitions, binary } = require('xrpl-accountlib');
 const { XrplAccount, XrplApi, EvernodeConstants, Defaults } = require('evernode-js-client');
 import axios from "axios";
 
-const XAHAU_WSS_URL = 'wss://xahau-test.net';
-const XAHAU_HTTP_URL = 'https://xahau-test.net';
-const NETWORK_ID = 21338;
+const XAHAU_WSS_URL = 'wss://xahau.network';
+const XAHAU_HTTP_URL = 'https://xahau.network';
+const NETWORK_ID = 21337;
 
 let xrplApi = null;
 
@@ -45,56 +45,6 @@ async function httpPost(url, body) {
     throw error;
   }
 }
-
-// function httpPost(url, body) {
-//   return new Promise((resolve, reject) => {
-//     // Convert the request body object to a string
-//     const data = JSON.stringify(body);
-
-//     // Parse the URL
-//     const urlObj = new URL(url);
-//     // Define the options for the request
-//     const options = {
-//       hostname: urlObj.hostname,
-//       port: urlObj.port,
-//       path: urlObj.pathname,
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Content-Length': data.length
-//       }
-//     };
-
-//     // Create the request
-//     const req = https.request(options, (res) => {
-//       let response = '';
-
-//       // Collect response data
-//       res.on('data', (chunk) => {
-//         response += chunk;
-//       });
-
-//       // Resolve the promise on end
-//       res.on('end', () => {
-//         try {
-//           // Attempt to parse JSON response
-//           resolve(JSON.parse(response));
-//         } catch (e) {
-//           reject(e);
-//         }
-//       });
-//     });
-
-//     // Reject the promise on request error
-//     req.on('error', (error) => {
-//       reject(error);
-//     });
-
-//     // Write the request body and end the request
-//     req.write(data);
-//     req.end();
-//   });
-// }
 
 async function getXahauDefinition() {
   const body = {
@@ -282,33 +232,4 @@ const UriTokenHelper = {
   buyUriToken,
 };
 
-//module.exports = UriTokenHelper;
 export default UriTokenHelper;
-
-/*const sourceAccount = "rEF6EoYPKiPBuBcuJ33dXV773adWQUBxEb";
-const sourceSecret = "ssUaRpvSoGdkxM3HsczVfKXDGyxAC";
-const destinationAccount="rJQWTGnJ6zYHtmymcohFCZAW7LqZEYMRrV";
-const destinationSecret = "shQR4xwtVbr3ynsVyr8G2EfbSkWsp";
-const buyerAccount = "rEALPVCk8pwkDLJemLQd4TN3hrphTZWdJY";
-const buyerSecret = "shyjUnWWT8ZxzSboDPti3qoqQxVgP";
-const sellerAccount = "rHMqT7UtJigHFGayDQPakyLFZRMaoQsvT9";
-const sellerSecret = "ss5n83QF4tvwem3oScnEXaAXxkuG7";
-const issuedCurrency = "EVR";
-const issuerAccount = "rM1fW221wzo8DW3CvXBgmCVahQ8cxxfLNz";
-const nativeCurrency = "XAH";
-const uri = "476576656F74657374313233343536";
-
-
-async function main() {
-  try {
-        //await createAndSellUriToken(sourceAccount, sourceSecret, destinationAccount, uri, "5");
-        //await buyUriToken(sourceAccount,destinationAccount, destinationSecret, uri,"5");
-        await uriTokenBurn(sourceAccount, sourceSecret, destinationAccount, uri);
-          
-      
-  } catch (e) {
-      console.log(e)
-  }
-}
-
-main().catch((e) => { console.error(e); process.exit(1); });*/

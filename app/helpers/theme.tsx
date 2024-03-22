@@ -35,7 +35,8 @@ let AppTheme = {
     lightGrey: "#AFAFAF",
     hasWonGreen: "#C9FDE3",
     hasLostRed: "#FDECEC",
-    roughWhite: "#F9F9F9"
+    roughWhite: "#F9F9F9",
+    dateGrey: "#948E8E"
   },
   spacings: {
     lineSpace: 10, // example

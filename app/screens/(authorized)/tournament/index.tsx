@@ -36,27 +36,21 @@ export default function Tournament({ navigation, route }) {
   const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
   const { title, gameId } = route.params;
   const [availableFunds, setAvailableFunds] = useState(0);
-  const [secret, setSecret] = useState("");
-  const [fromAddress, setFromAddress] = useState("");
   const [activeTab, setActiveTab] = useState("All Games");
 
   const [shuffleTime, setShuffleTime] = useState(null);
   const [shuffleTimePassed, setShuffleTimePassed] = useState(false);
   const [playerID, setPlayerID] = useState(0);
 
-  const [userName, setUsername] = useState("");
-
-  const toAddress = "rm2yHK71c5PNnS8JdFbYf29H3YDEa5Y6y";
-  const gameValue = "1"; // Amount of EVR to send
-
+  const [userName, setUsername] = useState("Emily Johnson");
+  const [totalWinnings, setTotalWinnings] = useState(0);
+  var acountService = new AccountService();
   const getCredentials = async () => {
     try {
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
       console.log("XRP Address: ", XRP_Address);
       const secret = await AsyncStorage.getItem("secret");
       console.log("Secret: ", secret);
-      setFromAddress(XRP_Address);
-      setSecret(secret);
       const playerId = await AsyncStorage.getItem("playerId");
       const playerIdInt = parseInt(playerId, 10); // Convert playerId to integer
       setPlayerID(playerIdInt);
@@ -76,9 +70,29 @@ export default function Tournament({ navigation, route }) {
     return true;
   }
 
+  async function getTotalWinningAmount() {
+    var msgObj = {
+      Player_ID: playerID
+    }
+    var totalAmount = 0;
+    acountService.getTotalWinnings(msgObj)
+    .then((totalWinnings) => {
+      console.log("total winning records: ", totalWinnings)
+      if(totalWinnings.success){
+        totalWinnings.data.forEach(element => {
+          totalAmount =+ element.Winning_Amount;
+          setTotalWinnings(totalAmount);
+        });
+      }
+    })
+    .catch((error) => {
+      console.log("Error while getting total winnings: ", error)
+    })
+  }
+
   async function checkIssuedCurrencyBalance(account, currencyCode, issuer) {
     // Connect to the XRP Ledger
-    const client = new xrpl.Client("wss://xahau-test.net/");
+    const client = new xrpl.Client("wss://xahau.network/");
     await client.connect();
 
     // Request the account lines (trust lines) for the specified account
@@ -111,59 +125,6 @@ export default function Tournament({ navigation, route }) {
     }
   }
 
-  //TODO: Change the game amount in the server
-  async function sendXRP(fromAddress, secret, toAddress, gameValue, amount, gameId, gameAmount) {
-    try {
-
-        const client = new xrpl.Client("wss://xahau-test.net/");
-        await client.connect();
-
-        // Autofill the transaction to get the proper sequence, fee, and lastLedgerSequence
-        const preparedTx = await client.autofill({
-          TransactionType: "Payment",
-          Account: fromAddress,
-          Amount: {
-            currency: "EVR", // The currency code, e.g., "EVR"
-            issuer: "rM1fW221wzo8DW3CvXBgmCVahQ8cxxfLNz", // The issuer's address of the currency
-            value: gameValue, // The amount of the currency to send
-          }, // Convert the amount to drops
-          Destination: toAddress,
-        });
-
-        // Sign the transaction with the secret key of the sender
-        //const {signedTransaction, id} = xrpl.sign(preparedTx, secret)
-
-        const wallet = xrpl.Wallet.fromSeed(secret, { algorithm: xrpl.ECDSA });
-
-        //console.log(wallet);
-
-        // Submit the signed blob to the ledger
-        const result = await client.submitAndWait(preparedTx, {
-          autofill: true, // Adds in fields that can be automatically set like fee and last_ledger_sequence
-          wallet: wallet,
-        });
-
-        console.log("Transaction result:", result);
-
-        if (result.result.meta.TransactionResult === "tesSUCCESS") {
-          navigation.navigate("Challenge", { amount, gameId, gameAmount });
-          //console.log(`Transaction succeeded: https://testnet.xrpl.org/transactions/${id}`)
-        } else {
-          console.log(
-            "Transaction failed:",
-            result.result.meta.TransactionResult
-          );
-        }
-
-        // Disconnect from the client
-        await client.disconnect();
-      //}
-    } catch (error) {
-      console.error("Error:", error);
-      // Handle the error (e.g., show an error message to the user)
-    }
-  }
-
   // Function to handle back button press
   const handleBackPress = () => {
     navigation.goBack();
@@ -189,9 +150,6 @@ export default function Tournament({ navigation, route }) {
   }, [navigation]);
 
   useEffect(() => {
-    //const unsubscribe = navigation.addListener('focus', () => {
-    // The screen is focused
-    // Call your functions here
     getCredentials().then((credentials) => {
       checkIssuedCurrencyBalance(
         credentials.XRP_Address,
@@ -203,10 +161,8 @@ export default function Tournament({ navigation, route }) {
     getAllChallenges(gameId);
     joinedGames();
     getUsername();
-    //});
-    // Return the unsubscribe function to clean up the listener
-    //return unsubscribe;
-  }, []); // Add navigation as a dependency
+    getTotalWinningAmount();
+  }, []);
 
   async function getAllChallenges(gameId) {
     try {
@@ -214,6 +170,9 @@ export default function Tournament({ navigation, route }) {
       const response = await axios.get(
         `${GameEngineApiParameters.URL}/api/games/getLeagueGamesByLeagueId?leagueId=${gameId}`
       );
+      if(response){
+        setShowLoadingIndicator(false);
+      }
       const shuffleTime = new Date(response.data.Games[0].ShuffleTime);
       const shuffleTimeValue = new Date(
         response.data.Games[0].ShuffleTime
@@ -252,9 +211,7 @@ export default function Tournament({ navigation, route }) {
       var acountService = new AccountService();
       const XRP_Address = await AsyncStorage.getItem("XRP_Address");
       var response = await acountService.getPlayerName(XRP_Address);
-      if(response){
-        setShowLoadingIndicator(false);
-      }
+      
       setUsername(response)
     }
     catch (error) {
@@ -262,7 +219,6 @@ export default function Tournament({ navigation, route }) {
     }
   }
 
-  //sendXRP(fromAddress, secret, toAddress, amount).catch(console.error)
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <View style={styles.mainContainer}>
@@ -291,13 +247,6 @@ export default function Tournament({ navigation, route }) {
               style={styles.profileImage}
               resizeMethod="resize"
               resizeMode="contain"
-              // source={{
-              //   uri: userObj
-              //     ? userObj.ImageURL === ""
-              //       ? "https://via.placeholder.com/250"
-              //       : userObj.ImageURL
-              //     : "https://via.placeholder.com/250",
-              // }}
               source={require("../../../assets/images/Avatar.png")}
             />
             <Text style={styles.userName}>{userName}</Text>
@@ -310,7 +259,7 @@ export default function Tournament({ navigation, route }) {
             </View>
             <View style={styles.bottom}>
               <Text style={styles.RightHeading}>Total Winnings</Text>
-              <Text style={styles.RightSubHeading}>0 EVR</Text>
+              <Text style={styles.RightSubHeading}>{totalWinnings} EVR</Text>
             </View>
           </View>
         </View>

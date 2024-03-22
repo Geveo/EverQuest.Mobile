@@ -101,7 +101,7 @@ export default class AccountService {
         return response;
     }
 
-    async AddTotalWinningRecord(message) {
+    async addTotalWinningRecord(message) {
         console.log("Creating a transaction record:", message);
         const messageObj = {
             service: requestConstants.RequestTypes.ACCOUNTS,
@@ -113,7 +113,7 @@ export default class AccountService {
         return response;
     }
 
-    async GetTotalWinnings(message){
+    async getTotalWinnings(message){
         console.log("Getiing a total winning record:", message);
         const messageObj = {
             service: requestConstants.RequestTypes.ACCOUNTS,

@@ -56,27 +56,26 @@ const styles = StyleSheet.create({
         justifyContent: "center",
       },
       gameInsideImage:{
-        height: 80,
-        width: 80,
+        height: 50,
+        width: 50,
         borderRadius: 10,
-        borderWidth: 0.8,
-        borderColor: AppTheme.colors.black,
       },
       gameText: {
     
       },
       gameTitle: {
-        fontSize: 16,
+        fontSize: 19,
         fontWeight: "bold",
+        color: AppTheme.colors.emailGreen,
       },
       gameStatus: {
         color: AppTheme.colors.textGrey,
       },
       gameStartDate: {
-        color: AppTheme.colors.textGrey,
+        color: AppTheme.colors.dateGrey,
       },
       gameEndDate: {
-        color: AppTheme.colors.textGrey,
+        color: AppTheme.colors.dateGrey,
       },
       horizontal: {
         borderBottomWidth: 1,

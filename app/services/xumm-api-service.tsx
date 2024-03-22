@@ -7,6 +7,8 @@ const {
   TransactionConstants,
 } = require(".../../../app/constants/constants");
 
+const NETWORK_ID = 21337;
+
 export default class XummApiService {
   private apiUrl: string = 'https://xumm.app/api/v1/platform';
   private xumm: Xumm;
@@ -43,63 +45,15 @@ export default class XummApiService {
     return axios.get(this.apiUrl + '/rates/' + currencyCode, {
       headers: this.getCommonRequestHeaders(),
     });
-
-    // sample response
-    // {
-    //   "USD": 1,
-    //   "XRP": 0.627231,
-    //   "XAH": 0.1135,
-    //   "__meta": {
-    //     "currency": {
-    //       "en": "US Dollar",
-    //       "code": "USD",
-    //       "symbol": "$",
-    //       "isoDecimals": 2
-    //     }
-    //   }
-    // }
   }
 
-  /**
-   * Get account profile avatar image url
-   */
-  // async getAvatar(rAddress: string) {
-  //   return 'https://xumm.app/avatar/' + rAddress + '.png';
-  // }
-
-  /**
-   * Get account profile
-   */
   async getAccountProfile(rAddress: string) {
     return axios.get(this.apiUrl + '/account-meta/' + rAddress, {
       headers: this.getCommonRequestHeaders(),
     });
-
-    // sample response
-    // {
-    //   "account": "rM9J9GskMWkDEU5yarJzYkqgXPwLQw4QqQ",
-    //   "kycApproved": false,
-    //   "xummPro": false,
-    //   "blocked": false,
-    //   "force_dtag": false,
-    //   "avatar": "https://xumm.app/avatar/rM9J9GskMWkDEU5yarJzYkqgXPwLQw4QqQ.png",
-    //   "xummProfile": {
-    //     "accountAlias": null,
-    //     "ownerAlias": null,
-    //     "slug": null,
-    //     "profileUrl": null,
-    //     "accountSlug": null,
-    //     "payString": null
-    //   },
-    //   "thirdPartyProfiles": [],
-    //   "globalid": {
-    //     "linked": null,
-    //     "profileUrl": null
-    //   }
-    // }
   }
 
-  async buyUriToken(playerAddress: string, amount: string, uriTokenId: any, gameid: number) {
+  async buyUriToken(playerAddress: string, amount: string, uriTokenId: any, gameid: number, playerID: number) {
     // amount = 1 = 0.000001 XAH
     var acountService = new AccountService();
     try {
@@ -113,7 +67,7 @@ export default class XummApiService {
           TransactionType: 'URITokenBuy',
           URITokenID: uriTokenId,
           Fee: "10",
-          NetworkID: 21338,
+          NetworkID: NETWORK_ID,
           Amount: {
             currency: TransactionConstants.CURRENCY,
             value: amount,
@@ -122,8 +76,6 @@ export default class XummApiService {
         },
         e => {
           console.log(e.data);
-
-          // todo: save the payload uuid to database along with the transaction details
 
           if (typeof e.data.signed !== 'undefined') {
             return e.data;
@@ -136,7 +88,7 @@ export default class XummApiService {
       console.log('Payment request submission completed.');
 
       var transactionObject = {
-        Player_ID: 10001,
+        Player_ID: playerID,
         Game_ID: gameid,
         Transaction_Date: new Date().toISOString(),
         URI_Token_Index: uriTokenId,
@@ -164,7 +116,7 @@ export default class XummApiService {
           URITokenID: uriTokenId,
           Fee: "10",
           Destination: TransactionConstants.ADMIN_ADDRESS,
-          NetworkID: 21338,
+          NetworkID: NETWORK_ID,
           Amount: {
             currency: TransactionConstants.CURRENCY,
             value: amount,
@@ -318,7 +270,7 @@ export default class XummApiService {
     //     "account": "rpkjaCPXbT5i7Vb1BnwozNp8E67o3s5AFD",
     //     "signer": "rpkjaCPXbT5i7Vb1BnwozNp8E67o3s5AFD",
     //     "user": "de59d86b-72b0-4c61-b3b7-3498ad5af056",
-    //     "environment_networkid": 21338
+    //     "environment_networkid": NETWORK_ID
     //   },
     //   "custom_meta": {
     //     "identifier": null,

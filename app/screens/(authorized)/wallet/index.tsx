@@ -18,6 +18,7 @@ import AppTheme from "../../../helpers/theme";
 import PageTitle from "../../../components/page-title/page-title";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AccountService from "../../../services/services-domain/account-service";
+import axios from "axios";
 const xrpl = require("xrpl");
 const {
   GameEngineApiParameters,
@@ -25,12 +26,13 @@ const {
 } = require(".../../../app/constants/constants");
 
 export default function WalletScreen({ navigation }) {
-  const [showLoadingIndicator, setShowLoadingIndicator] = useState(true);
+  const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [availableFunds, setAvailableFunds] = useState(0);
   const [xrpPriceInUSDOllars, setXrpPriceInUSDollars] = useState(0);
   const [transactionList, setTransactionList] = useState([]);
+  const [exchangeRate, setExchangeRate] = useState(0);
 
-  const [plyaerID, setPlayerID] = useState("");
+  const [plyaerID, setPlayerID] = useState("10002");
 
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
@@ -91,9 +93,28 @@ export default function WalletScreen({ navigation }) {
       });
   }
 
+  const getEvernodeValue = async () => {
+    try {
+      const response:any = await axios.get('https://api.coinranking.com/v2/coin/k71c5qIRt/price', {
+        headers: {
+          'x-access-token': 'coinrankingef9d1323eced6841d03361917b386e39d4201d3e79fa8e2c'
+        },
+      }) 
+      console.log("Evernode Price", response.data.data.price);
+      
+      const priceAsFloat = parseFloat(response.data.data.price);
+      
+      setExchangeRate(priceAsFloat);
+      
+    } catch (error) {
+      console.error("Error fetching Evernode price:", error);
+      return null;
+    }
+  };
+
   async function checkIssuedCurrencyBalance(account, currencyCode, issuer) {
     // Connect to the XRP Ledger
-    const client = new xrpl.Client("wss://xahau-test.net/");
+    const client = new xrpl.Client("wss://xahau.network/");
     await client.connect();
 
     // Request the account lines (trust lines) for the specified account
@@ -141,10 +162,11 @@ export default function WalletScreen({ navigation }) {
           );
           setXrpPriceInUSDollars(xrpPriceInUSD);
         }
+        getTransactionHistory(plyaerID);
       };
       fetchData();
-      //ToDo: get player id
-      getTransactionHistory(10001);
+      
+      getEvernodeValue();
     }
     );
 
@@ -166,14 +188,16 @@ export default function WalletScreen({ navigation }) {
     };
   }, [navigation]);
 
-    const renderItem = ({ item }) => (
-      <View key={item.key} style={styles.transactionItem}>
-        <Text>{item.date}</Text>
-        <Text>{item.gameId}</Text>
-        <Text>{item.amount} EVR</Text>
-        <Text>{item.status}</Text>
-      </View>
-    );
+  const renderItem = ({ item }) => (
+    <View key={item.key} style={styles.transactionItem}>
+      <Text>{item.date}</Text>
+      <Text>{item.gameId}</Text>
+      <Text>
+        {item.amount} EVR  
+      </Text>
+      <Text>{item.status != "JOINED" ? ( <Text style={{ color: 'green' }}>▲</Text>): (<Text style={{ color: 'red' }}> ▼</Text>)}</Text>
+    </View>
+  );
   
     return (
       <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
@@ -181,7 +205,7 @@ export default function WalletScreen({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.headingText}>EverQuest Wallet</Text>
         <Text style={styles.amountText}>{availableFunds} EVR</Text>
-        <Text style={styles.usdText}>{xrpPriceInUSDOllars * availableFunds} USD</Text>
+        <Text style={styles.usdText}>{exchangeRate * availableFunds} USD</Text>
         </View>
         <View style={styles.transactionHistorycontainer}>
           <Text style={styles.historyHeading}>Transaction History</Text>

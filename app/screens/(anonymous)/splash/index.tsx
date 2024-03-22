@@ -44,10 +44,6 @@ export default function SplashScreen({ navigation }) {
             animation={fadeOut ? 'fadeOut' : ''}
             style={[styles.bottomContainer, { opacity: fadeOut ? 0 : 0.8 }]}
           >
-            <Image
-              style={styles.geveoLogo}
-              source={require("../../../assets/images/geveo.png")}
-            />
             <View style={{ alignSelf: "center" }}>
               <Text style={styles.versionText}>Version 0.0.1</Text>
             </View>

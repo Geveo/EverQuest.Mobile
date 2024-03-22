@@ -107,7 +107,7 @@ export default function RoundDetails({ navigation, route }) {
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
       <PageTitle title="Round Details" navigation={navigation}/>
 
-      <DropdownComponent maxRounds={maxRoundNumber} selectedRound={detailsRoundNumber} onRoundChange={handleRoundChange} />
+      <DropdownComponent maxRounds={maxRoundNumber} selectedRound={detailsRoundNumber} onRoundChange={handleRoundChange} roundNumber={roundNumber}/>
       <View style= {styles.tableContainer}>
         <Text style= {styles.tableFont}>Selection</Text>
         <Text style= {styles.tableFont}>Name</Text>

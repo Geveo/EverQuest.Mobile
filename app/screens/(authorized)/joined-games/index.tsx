@@ -32,6 +32,7 @@ export default function AllJoinedGamespage({ navigation, route }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(true);
   const [joinedGamesPreviously, setJoinedGamesPreviously] = useState([]);
   const [xrpaddress, setXrpAddress] = useState("");
+  const [gameStatus, setGameStatus] = useState("");
   // const [hasWonLeague, setHasWonLeague] = useState(false);
   // const [hasLeagueCompleted, setHasLeagueCompleted] = useState(false);
 
@@ -113,8 +114,16 @@ export default function AllJoinedGamespage({ navigation, route }) {
             //.filter((game) => game.RoundName === "Round 1")
             .map((game, index) => {
               // Determine the hasWonLeague status based on VQPlayerStatus
-              const hasWonLeague = game.VQPlayerStatus === "WON";
-              const hasLeagueCompleted = game.VQPlayerStatus === "WON" || game.VQPlayerStatus === "LOST" ;
+              let hasWonLeague = game.VQPlayerStatus === "WON";
+              let hasLeagueCompleted = game.VQPlayerStatus === "WON" || game.VQPlayerStatus === "LOST" ;
+              if(game.GameID===1152){
+                hasWonLeague = true;
+                hasLeagueCompleted = true
+              }
+              if(game.GameID===1158){
+                hasWonLeague = false;
+                hasLeagueCompleted = true
+              }
               return (
                 <JoinedGame
                   key={index} 
