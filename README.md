@@ -11,8 +11,8 @@ In the test net, during the development and testing we were using an issued curr
 
 Dev -
 
--React Native mobile app
--Evernode smart contract (DAPP)
--SQLite3 Data Base
--XRPL and Xaman integration
+-React Native mobile app  <br>
+-Evernode smart contract (DAPP)  <br>
+-SQLite3 Data Base  <br>
+-XRPL and Xaman integration  <br>
 
