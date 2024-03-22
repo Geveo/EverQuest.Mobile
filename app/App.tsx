@@ -9,6 +9,10 @@ import WalletScreen from "./screens/(authorized)/wallet";
 import GamesList from "./screens/(authorized)/games-list";
 import Tournament from "./screens/(authorized)/tournament";
 import Challenge from "./screens/(authorized)/challenge";
+import RoundDetails from "./screens/(authorized)/round-details";
+import Login from "./screens/(anonymous)/login";
+import AllJoinedGamespage from "./screens/(authorized)/joined-games";
+import AllRoundsPage from "./screens/(authorized)/all-rounds";
 
 const Stack = createStackNavigator();
 
@@ -71,6 +75,30 @@ export default function App() {
           name="Challenge"
           component={Challenge}
           options={{ title: "Challenge" }}
+        />
+
+        <Stack.Screen
+          name="RoundDetails"
+          component={RoundDetails}
+          options={{ title: "RoundDetails" }}
+        />
+
+        <Stack.Screen
+          name="LoginScreen"
+          component={Login}
+          options={{ title: "LoginScreen" }}
+        />
+
+        <Stack.Screen
+          name="AllJoinedGamespage"
+          component={AllJoinedGamespage}
+          options={{ title: "AllJoinedGamespage" }}
+        />
+
+        <Stack.Screen
+          name="AllRoundsPage"
+          component={AllRoundsPage}
+          options={{ title: "AllRoundsPage" }}
         />
         
       </Stack.Navigator>

@@ -237,7 +237,7 @@ export default class HotPocketClientService {
         if (outputObj && outputObj.hasOwnProperty("error")) {
           throw outputObj.error;
         } else {
-          return outputObj != null ? outputObj.success: null;
+          return outputObj != null ? outputObj: null;
         }
     } catch (error) {
       console.log(error);

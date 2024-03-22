@@ -17,6 +17,7 @@ import AuthorizedLayout from "../../../components/layouts/authorized-layout";
 import PageTitle from "../../../components/page-title/page-title";
 import { Searchbar } from "react-native-paper";
 import SingleSport from "../../../components/single-sport/single-sport";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function SportsCatergory({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
@@ -64,20 +65,64 @@ export default function SportsCatergory({ navigation }) {
 
       <Text style={styles.heading}> Sports Catergory</Text>
 
-      <View style={styles.sportsContainer}>
-          <SingleSport sportName="Cricket" sportImage={require("../../../assets/images/cricket-Icon.png")} />
-          <SingleSport sportName="Football" sportImage={require("../../../assets/images/football-Icon.png")} />
-      </View>
+      <ScrollView style={styles.mainContainer}>
+        <View style={styles.sportsContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 1, sportName: "Cricket"  })}
+          >
+            <SingleSport
+              sportName="Cricket"
+              sportImage={require("../../../assets/images/cricket-Icon.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 2, sportName: "Rugby"  })}
+          >
+            <SingleSport
+              sportName="Rugby"
+              sportImage={require("../../../assets/images/rugby-Icon.png")}
+            />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.sportsContainer}>
-        <SingleSport sportName="Rugby" sportImage={require("../../../assets/images/rugby-Icon.png")} />
-        <SingleSport sportName="Tennis" sportImage={require("../../../assets/images/tennis-Icon.png")} />
-      </View>
+        <View style={styles.sportsContainer}>
+          <TouchableOpacity
+             onPress={() => navigation.navigate("GamesList", { sportId: 5, sportName: "Football"  })}
+          >
+            <SingleSport
+              sportName="Football"
+              sportImage={require("../../../assets/images/football-Icon.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 7, sportName: "Tennis"  })}
+          >
+            <SingleSport
+              sportName="Tennis"
+              sportImage={require("../../../assets/images/tennis-Icon.png")}
+            />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.sportsContainer}>
-        <SingleSport sportName="Basketball" sportImage={require("../../../assets/images/basketball-Icon.png")} />
-        <SingleSport sportName="Hockey" sportImage={require("../../../assets/images/hockey-Icon.png")} />
-      </View>
+        <View style={styles.sportsContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 8, sportName: "Basketball"  })}
+          >
+            <SingleSport
+              sportName="Basketball"
+              sportImage={require("../../../assets/images/basketball-Icon.png")}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("GamesList", { sportId: 9, sportName: "Hockey"  })}
+          >
+            <SingleSport
+              sportName="Hockey"
+              sportImage={require("../../../assets/images/hockey-Icon.png")}
+            />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       <EQBottomNavigationBar
         navigation={navigation}
@@ -89,6 +134,9 @@ export default function SportsCatergory({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    marginBottom: 100,
+  },
   searchBar: {
     marginTop: 10,
     marginHorizontal: 10,
@@ -104,6 +152,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+    
   },
   sportCatergory: {
     backgroundColor: AppTheme.colors.tabGrey,

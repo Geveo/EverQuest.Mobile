@@ -4,6 +4,7 @@ import AuthorizedLayout from "../../../components/layouts/authorized-layout";
 import AuthService from "../../../services/auth-service";
 import AppTheme from "../../../helpers/theme";
 import SCButton from "../../../components/button/button";
+import HotPocketClientService from "../../../services/hp-client-service";
 
 export default function LandingScreen({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
@@ -25,9 +26,24 @@ export default function LandingScreen({ navigation }) {
     //          navigation.navigate("SignInScreen");
     //        }
     //     });
-    navigation.navigate("HomeScreen");
+    navigation.navigate("LoginScreen");
   }
 
+  useEffect(() => {
+    async function initializeHotPocketClient() {
+      try {
+        // Get the HotPocketClient instance
+        const hotPocketClient = await HotPocketClientService.getInstance();
+        console.log('HotPocketClient instance initialized:', hotPocketClient);
+      } catch (error) {
+        console.error('Error initializing HotPocketClient:', error);
+      }
+    }
+    initializeHotPocketClient();
+
+    return () => {
+    };
+  }, []);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(

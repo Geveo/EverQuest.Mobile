@@ -83,9 +83,16 @@
             android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.App.SplashScreen"
             android:exported="true">
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:scheme="everquest" />
+                <data android:host="login" />
             </intent-filter>
         </activity>
 

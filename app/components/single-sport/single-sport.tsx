@@ -13,16 +13,13 @@ export default function SingleSport({ sportName, sportImage }) {
 
   return (
     <View>
-      <TouchableOpacity>
           <View style={styles.sportCatergory}>
           <Image
             style={styles.SportLogo}
-            //source={require("../../../assets/images/cricket-Icon.png")}
             source={sportImage}
           />
-          </View>
           <Text style={styles.sportsText}> {sportName} </Text>
-        </TouchableOpacity>
+          </View>
     </View>
   );
 
@@ -34,16 +31,18 @@ const styles = StyleSheet.create({
     padding: 25,
     borderRadius: 8,
     elevation: 5,
-    width: 140,
+    width: 150,
     height: 130,
+    marginBottom: 40,
   },
   SportLogo: {
     alignSelf: "center",
-    height: 80,
+    height: 50,
+    width: 50,
   },
   sportsText: {
-    marginTop: 10,
-    fontSize: 16,
+    marginTop: 15,
+    fontSize: 20,
     fontWeight: "500",
     alignSelf: "center",
   },

@@ -15,16 +15,19 @@ import EQBottomNavigationBar, {
 } from "../../../components/bottom-navigation-bar/bottom-navigation-bar";
 import SCButton from "../../../components/button/button";
 import PageTitle from "../../../components/page-title/page-title";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { showToast } from "../../../services/toast-service";
+import { ToastMessageTypes } from "../../../helpers/constants";
+import AccountService from "../../../services/services-domain/account-service";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function Account({ navigation }) {
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
-
-  const userName = "Test User";
-  const userEmail = "test@test.com";
+  const [userName, setUsername] = useState("");
 
   useEffect(() => {
+    getUsername();
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
@@ -43,14 +46,38 @@ export default function Account({ navigation }) {
     };
   }, [navigation]);
 
+  async function getUsername() {
+    try {
+      var acountService = new AccountService();
+      const XRP_Address = await AsyncStorage.getItem("XRP_Address");
+      var response = await acountService.getPlayerName(XRP_Address);
+      setUsername(response)
+    }
+    catch (error) {
+      console.error("Error occurred while getting username:", error);
+    }
+  }
+
   async function onBottomNavigationTapped(tab: BottomNavigationButtons) {
     console.log(tab);
     return true;
   }
 
-  async function signOut() {
-    console.log("Sign out");
-  }
+  const signOut = async () => {
+    try {
+      // Clear AsyncStorage
+      await AsyncStorage.removeItem('XRP_Address');
+      await AsyncStorage.removeItem('secret');
+      // Show sign-out success toast message
+      showToast("Signed out successfully", ToastMessageTypes.success);
+      // Navigate to login page
+      navigation.navigate('LoginScreen');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Show sign-out error toast message
+      showToast("Failed to sign out", ToastMessageTypes.error);
+    }
+  };
 
   return (
     <AuthorizedLayout showWaitIndicator={showLoadingIndicator}>
@@ -73,7 +100,6 @@ export default function Account({ navigation }) {
           }}
         />
         <Text style={styles.userName}>{userName}</Text>
-        <Text style={styles.userEmail}>{userEmail}</Text>
       </View>
 
       <View style={styles.signOut}>
