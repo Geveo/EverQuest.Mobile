@@ -1,20 +1,18 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+EverQuest DApp creates a unique experience for sports enthusiasts. Drawing inspiration from real-world competitions such as FIFA for football and the ICC T20 World Cup for cricket, EverQuest transforms the way fans engage with their favorite sports. 
+
+The basic principle of EverQuest is to eliminate your team members and become the last player standing who will take the winning price pool. 
+
+In EverQuest, while the real teams compete on the field, users of the app can participate in an exciting guessing game by paying game value in evers. They can predict the winning team of a match or event, and if their guess is correct, they earn rewards in Evers. EverQuest game structure mirrors real tournaments that span weeks or months until a final winner is determined. 
+
+In the test net, during the development and testing we were using an issued currency and creating trustlines for the player accounts, so that player’s accounts can be funded with issued currency. In the main net we are using real evers.  
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Technology Stack
+Dev -
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+React Native mobile app
+Evernode smart contract (DAPP)
+SQLite3 Data Base
+XRPL and Xaman integration
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
